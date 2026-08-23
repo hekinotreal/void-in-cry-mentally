@@ -10,62 +10,70 @@ body { background: darkblue; color: white; }
 </style>
 </head>
 <body>
-<div id="topright"><button id="export">Export</button><button id="import">Import</button><button id="atab">Achievements</button></div>
+<div id="topright"><button id="export">Export</button><button id="import">Import</button><button id="atab">Achievements</button><button id="qtab">Quarks</button><button id="hardreset">Hard Reset</button></div>
 <div id="main">
 <div id="void"></div>
 <div id="gain"></div>
 <div id="mult"></div>
-<div id="upg"></div>
-<button id="buy">Upgrade</button>
-<div id="upg2"></div>
-<button id="buy2">Upgrade 2</button>
-<div id="upg3"></div>
-<button id="buy3">Upgrade 3</button>
-<div id="upg4"></div>
-<button id="buy4">Upgrade 4</button>
-<div id="upg5"></div>
-<button id="buy5">Upgrade 5</button>
-<div id="upg6"></div>
-<button id="buy6">Upgrade 6</button>
-<div id="upg7"></div>
-<button id="buy7">Upgrade 7</button>
-<div id="upg8"></div>
-<button id="buy8">Upgrade 8</button>
-<div id="upg9"></div>
-<button id="buy9">Upgrade 9</button>
-<div id="upg10"></div>
-<button id="buy10">Upgrade 10</button>
-<div id="upg11"></div>
-<button id="buy11">Upgrade 11</button>
-<div id="upg12"></div>
-<button id="buy12">Upgrade 12</button>
+<div id="upgs"></div>
 </div>
 <div id="alist" style="display:none"></div>
+<div id="qlist" style="display:none">
+<div id="qamt"></div>
+<div id="qgaininfo"></div>
+<button id="qreset">Quark Reset</button>
+<br><br>
+<button id="qb1"></button>
+<button id="qb2"></button>
+<br>
+<button id="qb3"></button>
+<button id="qb4"></button>
+<br>
+<button id="qb5"></button>
+</div>
 <script>
 var SAVE_KEY = "voidSave";
 var VIG_KEY = "void";
+var VOID_CAP = new ExpantaNum("179e306"); // 179UCe
 var voidAmt = new ExpantaNum(0);
-var level = 0;
-var level2 = 0;
-var level3 = 0;
-var level4 = 0;
-var level5 = 0;
-var level6 = 0;
-var level7 = 0;
-var level8 = 0;
-var level9 = 0;
-var level10 = 0;
-var level11 = 0;
-var level12 = 0;
-var achs = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
-var ACH_NAMES = ["Generational start", "Starting off strong", "Voidless mess", "A million of nothing", "Wow ur far now", "Nothing but void", "Boring but free boost is always good", "Ooo so good", "Finally out of the hard part", "10 billion of nothing", "Robert", "Topala", "Interesting", "Tobert Ropala", "10th anniversary for upgrades", "Veeery intersting", "I hear something", "Quarter of the letter", "Deka-void", ""];
-var ACH_DESCS = ["Get 1 Void", "Buy Upgrade 3", "Get 1000 Void", "Get 1 million Void", "Buy Upgrade 5", "Reach 100M Void", "Max out Upgrade 5", "Max out Upgrade 3", "Buy 2 of Upgrade 6", "Get 10 billion Void", "Reach 1 quadrillion Void", "Reach 1 quintillion Void", "Buy Upgrade 8", "Buy Upgrade 9", "Buy Upgrade 10", "Reach 5 octillion Void", "Reach 100 octillion Void", "Buy 50 levels of Upgrade 8", "Reach 1 decillion Void", "Buy Upgrade 11"];
-var UPG_MAX = [5, 20, 42, 10, 20, 10, 20, 200, 10, 20, 50, 100];
+var quarks = new ExpantaNum(0);
+var lv = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var quarkUpg = [false, false, false, false, false];
+var keptBase7 = 0;
+var keptBase8 = 0;
+var resetCount = 0;
+var achs = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+var ACH_NAMES = ["Generational start", "Starting off strong", "Voidless mess", "A million of nothing", "Wow ur far now", "Nothing but void", "Boring but free boost is always good", "Ooo so good", "Finally out of the hard part", "10 billion of nothing", "Robert", "Topala", "Interesting", "Tobert Ropala", "10th anniversary for upgrades", "Veeery intersting", "I hear something", "Quarter of the letter", "Deka-void", "", "Reach level 30 in Upgrade 12", "Finally something existant", "Wow the numbers are getting bigger but still capped haha"];
+var ACH_DESCS = ["Get 1 Void", "Buy Upgrade 3", "Get 1000 Void", "Get 1 million Void", "Buy Upgrade 5", "Reach 100M Void", "Max out Upgrade 5", "Max out Upgrade 3", "Buy 2 of Upgrade 6", "Get 10 billion Void", "Reach 1 quadrillion Void", "Reach 1 quintillion Void", "Buy Upgrade 8", "Buy Upgrade 9", "Buy Upgrade 10", "Reach 5 octillion Void", "Reach 100 octillion Void", "Buy 50 levels of Upgrade 8", "Reach 1 decillion Void", "Buy Upgrade 11", "Reach level 30 in Upgrade 12", "Do a Quark reset", "Buy Quark Upgrade 4"];
+var UPG_MAX = [5, 20, 42, 10, 20, 10, 20, 200, 10, 20, 50, 100, 100, 100];
+var UPG_LABEL = ["x2", "x1.1", "x1.2", "x1.5", "x1.02", "x3", "x1.5", "x1.05", "x2", "x2", "x3", "x10", "x5", "x2"];
 var ACH_BONUS = 0.25;
 var last = performance.now();
 
+var COSTS = [
+  function (l) { return new ExpantaNum(1).mul(new ExpantaNum(1e10).pow(Math.max(0, l - 5))); },
+  function (l) { return new ExpantaNum(40).mul(new ExpantaNum(1.15).pow(l)); },
+  function (l) { return new ExpantaNum(100).mul(new ExpantaNum(1.5).pow(l)); },
+  function (l) { return new ExpantaNum(1000).mul(new ExpantaNum(2).pow(l)); },
+  function (l) { return new ExpantaNum(2e6).mul(new ExpantaNum(1.1).pow(l)); },
+  function (l) { return new ExpantaNum(1e9).mul(new ExpantaNum(6).pow(l)); },
+  function (l) { return new ExpantaNum(2.5e11).mul(new ExpantaNum(2).pow(l)); },
+  function (l) { return new ExpantaNum(5e20).mul(new ExpantaNum(1.5).pow(l)); },
+  function (l) { return new ExpantaNum(1e21).mul(new ExpantaNum(4).pow(l)); },
+  function (l) { return new ExpantaNum(1.6e22).mul(new ExpantaNum(8).pow(l)); },
+  function (l) { return new ExpantaNum(1e59).mul(new ExpantaNum(6).pow(l)); },
+  function (l) { return new ExpantaNum(2e61).mul(new ExpantaNum(100).pow(l)); },
+  function (l) { return new ExpantaNum(1e120).mul(new ExpantaNum(50).pow(l)); },
+  function (l) { return new ExpantaNum(2.5e122).mul(new ExpantaNum(5).pow(l)); }
+];
+
 function save() {
-  localStorage.setItem(SAVE_KEY, JSON.stringify({ v: voidAmt.toString(), l: level, m: level2, n: level3, o: level4, p: level5, q: level6, r: level7, s: level8, t: level9, u: level10, w: level11, x: level12, a: achs }));
+  localStorage.setItem(SAVE_KEY, JSON.stringify({
+    v: voidAmt.toString(), k: quarks.toString(),
+    l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6],
+    s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13],
+    c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, a: achs
+  }));
 }
 
 function load() {
@@ -73,54 +81,57 @@ function load() {
     var d = JSON.parse(localStorage.getItem(SAVE_KEY));
     if (!d) return;
     voidAmt = new ExpantaNum(d.v);
-    level = d.l || 0;
-    level2 = d.m || 0;
-    level3 = d.n || 0;
-    level4 = d.o || 0;
-    level5 = d.p || 0;
-    level6 = d.q || 0;
-    level7 = d.r || 0;
-    level8 = d.s || 0;
-    level9 = d.t || 0;
-    level10 = d.u || 0;
-    level11 = d.w || 0;
-    level12 = d.x || 0;
-    if (d.a) for (var i = 0; i < achs.length; i++) achs[i] = !!d.a[i];
+    quarks = d.k !== undefined ? new ExpantaNum(d.k) : new ExpantaNum(0);
+    lv[0] = d.l || 0; lv[1] = d.m || 0; lv[2] = d.n || 0; lv[3] = d.o || 0;
+    lv[4] = d.p || 0; lv[5] = d.q || 0; lv[6] = d.r || 0; lv[7] = d.s || 0;
+    lv[8] = d.t || 0; lv[9] = d.u || 0; lv[10] = d.w || 0; lv[11] = d.x || 0;
+    lv[12] = d.y || 0; lv[13] = d.z || 0;
+    if (d.c) for (var i = 0; i < 5; i++) quarkUpg[i] = !!d.c[i];
+    if (d.a) for (var j = 0; j < achs.length; j++) achs[j] = !!d.a[j];
+    keptBase7 = d.b7 || 0;
+    keptBase8 = d.b8 || 0;
+    resetCount = d.rc || 0;
   } catch (e) {}
+}
+
+function upgMax(i) {
+  var extra = 0;
+  if (i <= 10 && achs[18]) extra += 10;
+  if (resetCount > 0) extra += 10;
+  return UPG_MAX[i - 1] + extra;
 }
 
 function checkAchs() {
   if (!achs[0] && voidAmt.gte(1)) achs[0] = true;
-  if (!achs[1] && level3 > 0) achs[1] = true;
+  if (!achs[1] && lv[2] > 0) achs[1] = true;
   if (!achs[2] && voidAmt.gte(1000)) achs[2] = true;
   if (!achs[3] && voidAmt.gte(1e6)) achs[3] = true;
-  if (!achs[4] && level5 > 0) achs[4] = true;
+  if (!achs[4] && lv[4] > 0) achs[4] = true;
   if (!achs[5] && voidAmt.gte(1e8)) achs[5] = true;
-  if (!achs[6] && level5 >= 20) achs[6] = true;
-  if (!achs[7] && level3 >= 42) achs[7] = true;
-  if (!achs[8] && level6 >= 2) achs[8] = true;
+  if (!achs[6] && lv[4] >= 20) achs[6] = true;
+  if (!achs[7] && lv[2] >= 42) achs[7] = true;
+  if (!achs[8] && lv[5] >= 2) achs[8] = true;
   if (!achs[9] && voidAmt.gte(1e10)) achs[9] = true;
   if (!achs[10] && voidAmt.gte(1e15)) achs[10] = true;
   if (!achs[11] && voidAmt.gte(1e18)) achs[11] = true;
-  if (!achs[12] && level8 > 0) achs[12] = true;
-  if (!achs[13] && level9 > 0) achs[13] = true;
-  if (!achs[14] && level10 > 0) achs[14] = true;
+  if (!achs[12] && lv[7] > 0) achs[12] = true;
+  if (!achs[13] && lv[8] > 0) achs[13] = true;
+  if (!achs[14] && lv[9] > 0) achs[14] = true;
   if (!achs[15] && voidAmt.gte(5e27)) achs[15] = true;
   if (!achs[16] && voidAmt.gte(1e29)) achs[16] = true;
-  if (!achs[17] && level8 >= 50) achs[17] = true;
+  if (!achs[17] && lv[7] >= 50) achs[17] = true;
   if (!achs[18] && voidAmt.gte(1e33)) achs[18] = true;
-  if (!achs[19] && level11 > 0) achs[19] = true;
-}
-
-function upgMax(i) {
-  return UPG_MAX[i - 1] + (achs[18] ? 10 : 0);
+  if (!achs[19] && lv[10] > 0) achs[19] = true;
+  if (!achs[20] && lv[11] >= 30) achs[20] = true;
 }
 
 function achMult() {
   var count = 0;
   for (var i = 0; i < achs.length; i++) if (achs[i]) count++;
   var base = ACH_BONUS * (achs[17] ? 1.5 : 1);
-  var r = base + (achs[9] ? 0.1 : 0) + 0.05 * level7 + 0.005 * level8;
+  if (quarkUpg[1]) base *= 1.2;
+  if (quarkUpg[3]) base *= 1.2;
+  var r = base + (achs[9] ? 0.1 : 0) + keptBase7 + keptBase8 + (resetCount > 0 ? 3 : 0);
   return new ExpantaNum(1 + r).pow(count);
 }
 
@@ -237,153 +248,75 @@ function decodeSave(enc) {
 
 load();
 
-function upg1Cost() {
-  var over = Math.max(0, level - 5);
-  return new ExpantaNum(1).mul(new ExpantaNum(1e10).pow(over));
+function quarkGain() {
+  var l = voidAmt.log10().toNumber();
+  if (l < 308.25) return 0;
+  return Math.floor(Math.pow((l - 308.25) / 1000, 3)) + 1;
 }
 
-document.getElementById("buy").onclick = function () {
-  var cost = upg1Cost();
-  if (level < upgMax(1) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level++;
+function doQuarkReset() {
+  var g = quarkGain();
+  if (g <= 0) return;
+  quarks = quarks.add(g);
+  voidAmt = new ExpantaNum(0);
+  for (var i = 0; i < lv.length; i++) lv[i] = 0;
+  resetCount++;
+  if (!achs[21]) achs[21] = true;
+}
+
+function buyUpg(i) {
+  var max = quarkUpg[4] ? 10 : 1;
+  var bought = 0;
+  while (bought < max && lv[i - 1] < upgMax(i)) {
+    var c = COSTS[i - 1](lv[i - 1]);
+    if (!voidAmt.gte(c)) break;
+    voidAmt = voidAmt.sub(c);
+    lv[i - 1]++;
+    bought++;
   }
-};
-
-function upg2Cost() {
-  return new ExpantaNum(40).mul(new ExpantaNum(1.15).pow(level2));
 }
 
-document.getElementById("buy2").onclick = function () {
-  var cost = upg2Cost();
-  if (level2 < upgMax(2) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level2++;
-  }
-};
-
-function upg3Cost() {
-  return new ExpantaNum(100).mul(new ExpantaNum(1.5).pow(level3));
+var upgsEl = document.getElementById("upgs");
+for (var ui = 1; ui <= 14; ui++) {
+  (function (i) {
+    var d = document.createElement("div");
+    d.id = "upg" + i;
+    upgsEl.appendChild(d);
+    var b = document.createElement("button");
+    b.id = "buy" + i;
+    b.textContent = "Upgrade " + i;
+    b.onclick = function () { buyUpg(i); };
+    upgsEl.appendChild(b);
+  })(ui);
 }
 
-document.getElementById("buy3").onclick = function () {
-  var cost = upg3Cost();
-  if (level3 < upgMax(3) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level3++;
-  }
-};
-
-function upg4Cost() {
-  return new ExpantaNum(1000).mul(new ExpantaNum(2).pow(level4));
+function buyQuark(i) {
+  if (quarkUpg[i - 1]) return;
+  if ((i === 1 && quarkUpg[1]) || (i === 2 && quarkUpg[0])) return;
+  if (quarks.lt(QUARK_COST[i - 1])) return;
+  quarkUpg[i - 1] = true;
+  if (i === 4 && !achs[22]) achs[22] = true;
 }
 
-document.getElementById("buy4").onclick = function () {
-  var cost = upg4Cost();
-  if (level4 < upgMax(4) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level4++;
-  }
-};
+document.getElementById("qb1").onclick = function () { buyQuark(1); };
+document.getElementById("qb2").onclick = function () { buyQuark(2); };
+document.getElementById("qb3").onclick = function () { buyQuark(3); };
+document.getElementById("qb4").onclick = function () { buyQuark(4); };
+document.getElementById("qb5").onclick = function () { buyQuark(5); };
+document.getElementById("qreset").onclick = doQuarkReset;
 
-function upg5Cost() {
-  return new ExpantaNum(2e6).mul(new ExpantaNum(1.1).pow(level5));
-}
+var hardResetting = false;
 
-document.getElementById("buy5").onclick = function () {
-  var cost = upg5Cost();
-  if (level5 < upgMax(5) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level5++;
-  }
-};
-
-function upg6Cost() {
-  return new ExpantaNum(1e9).mul(new ExpantaNum(6).pow(level6));
-}
-
-document.getElementById("buy6").onclick = function () {
-  var cost = upg6Cost();
-  if (level6 < upgMax(6) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level6++;
-  }
-};
-
-function upg7Cost() {
-  return new ExpantaNum(2.5e11).mul(new ExpantaNum(2).pow(level7));
-}
-
-document.getElementById("buy7").onclick = function () {
-  var cost = upg7Cost();
-  if (level7 < upgMax(7) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level7++;
-  }
-};
-
-function upg8Cost() {
-  return new ExpantaNum(5e20).mul(new ExpantaNum(1.5).pow(level8));
-}
-
-document.getElementById("buy8").onclick = function () {
-  var cost = upg8Cost();
-  if (level8 < upgMax(8) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level8++;
-  }
-};
-
-function upg9Cost() {
-  return new ExpantaNum(1e21).mul(new ExpantaNum(4).pow(level9));
-}
-
-document.getElementById("buy9").onclick = function () {
-  var cost = upg9Cost();
-  if (level9 < upgMax(9) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level9++;
-  }
-};
-
-function upg10Cost() {
-  return new ExpantaNum(1.6e22).mul(new ExpantaNum(8).pow(level10));
-}
-
-document.getElementById("buy10").onclick = function () {
-  var cost = upg10Cost();
-  if (level10 < upgMax(10) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level10++;
-  }
-};
-
-function upg11Cost() {
-  return new ExpantaNum(1e59).mul(new ExpantaNum(6).pow(level11));
-}
-
-document.getElementById("buy11").onclick = function () {
-  var cost = upg11Cost();
-  if (level11 < upgMax(11) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level11++;
-  }
-};
-
-function upg12Cost() {
-  return new ExpantaNum(2e61).mul(new ExpantaNum(100).pow(level12));
-}
-
-document.getElementById("buy12").onclick = function () {
-  var cost = upg12Cost();
-  if (level12 < upgMax(12) && voidAmt.gte(cost)) {
-    voidAmt = voidAmt.sub(cost);
-    level12++;
+document.getElementById("hardreset").onclick = function () {
+  if (confirm("Hard reset will delete ALL progress (void, upgrades, quarks, achievements). Are you sure?")) {
+    hardResetting = true;
+    localStorage.removeItem(SAVE_KEY);
+    location.reload();
   }
 };
 
 document.getElementById("export").onclick = function () {
-  prompt("Your save:", encodeSave({ v: voidAmt.toString(), l: level, m: level2, n: level3, o: level4, p: level5, q: level6, r: level7, s: level8, t: level9, u: level10, w: level11, x: level12, a: achs }));
+  prompt("Your save:", encodeSave({ v: voidAmt.toString(), k: quarks.toString(), l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6], s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, a: achs }));
 };
 
 document.getElementById("import").onclick = function () {
@@ -392,113 +325,103 @@ document.getElementById("import").onclick = function () {
   try {
     var d = decodeSave(s);
     voidAmt = new ExpantaNum(d.v);
-    level = d.l || 0;
-    level2 = d.m || 0;
-    level3 = d.n || 0;
-    level4 = d.o || 0;
-    level5 = d.p || 0;
-    level6 = d.q || 0;
-    level7 = d.r || 0;
-    level8 = d.s || 0;
-    level9 = d.t || 0;
-    level10 = d.u || 0;
-    level11 = d.w || 0;
-    level12 = d.x || 0;
-    if (d.a) for (var i = 0; i < achs.length; i++) achs[i] = !!d.a[i];
+    quarks = d.k !== undefined ? new ExpantaNum(d.k) : new ExpantaNum(0);
+    lv[0] = d.l || 0; lv[1] = d.m || 0; lv[2] = d.n || 0; lv[3] = d.o || 0;
+    lv[4] = d.p || 0; lv[5] = d.q || 0; lv[6] = d.r || 0; lv[7] = d.s || 0;
+    lv[8] = d.t || 0; lv[9] = d.u || 0; lv[10] = d.w || 0; lv[11] = d.x || 0;
+    lv[12] = d.y || 0; lv[13] = d.z || 0;
+    if (d.c) for (var i = 0; i < 5; i++) quarkUpg[i] = !!d.c[i];
+    if (d.a) for (var j = 0; j < achs.length; j++) achs[j] = !!d.a[j];
+    keptBase7 = d.b7 || 0;
+    keptBase8 = d.b8 || 0;
+    resetCount = d.rc || 0;
     save();
   } catch (e) {
     alert("Invalid save");
   }
 };
 
+var curTab = "main";
+function showTab(t) {
+  curTab = t;
+  document.getElementById("main").style.display = t === "main" ? "" : "none";
+  document.getElementById("alist").style.display = t === "achs" ? "" : "none";
+  document.getElementById("qlist").style.display = t === "quarks" ? "" : "none";
+  document.body.style.background = t === "quarks" ? "darkslateblue" : "darkblue";
+}
+
 document.getElementById("atab").onclick = function () {
-  var alist = document.getElementById("alist");
-  var main = document.getElementById("main");
-  var open = alist.style.display === "none";
-  alist.style.display = open ? "" : "none";
-  main.style.display = open ? "none" : "";
+  showTab(curTab === "achs" ? "main" : "achs");
 };
+
+document.getElementById("qtab").onclick = function () {
+  showTab(curTab === "quarks" ? "main" : "quarks");
+};
+
+var QUARK_COST = [1, 1, 2, 3, 4];
+var QUARK_DESCS = [
+  "x10 Void",
+  "x1.2 Base achievement boost",
+  "x50 Void",
+  "x1.2 Base achievement boost",
+  "x100 Void + Bulk buy 10"
+];
 
 function loop(now) {
   var dt = new ExpantaNum((now - last) / 1000);
   last = now;
-  var gain = new ExpantaNum(0.1).mul(new ExpantaNum(2).pow(level)).mul(new ExpantaNum(1.1).pow(level2)).mul(new ExpantaNum(1.2).pow(level3)).mul(new ExpantaNum(1.5).pow(level4)).mul(new ExpantaNum(1.02).pow(level5)).mul(new ExpantaNum(3).pow(level6)).mul(new ExpantaNum(1.5).pow(level7)).mul(new ExpantaNum(1.05).pow(level8)).mul(new ExpantaNum(2).pow(level9)).mul(new ExpantaNum(2).pow(level10)).mul(new ExpantaNum(3).pow(level11)).mul(new ExpantaNum(10).pow(level12)).mul(achMult()).mul(achs[17] ? 3 : 1);
+
+  var gain = new ExpantaNum(0.1).mul(new ExpantaNum(2).pow(lv[0])).mul(new ExpantaNum(1.1).pow(lv[1])).mul(new ExpantaNum(1.2).pow(lv[2])).mul(new ExpantaNum(1.5).pow(lv[3])).mul(new ExpantaNum(1.02).pow(lv[4])).mul(new ExpantaNum(3).pow(lv[5])).mul(new ExpantaNum(1.5).pow(lv[6])).mul(new ExpantaNum(1.05).pow(lv[7])).mul(new ExpantaNum(2).pow(lv[8])).mul(new ExpantaNum(2).pow(lv[9])).mul(new ExpantaNum(3).pow(lv[10])).mul(new ExpantaNum(10).pow(lv[11])).mul(new ExpantaNum(5).pow(lv[12])).mul(new ExpantaNum(2).pow(lv[13]));
+  if (quarkUpg[0]) gain = gain.mul(10);
+  if (quarkUpg[2]) gain = gain.mul(50);
+  if (quarkUpg[4]) gain = gain.mul(100);
+  gain = gain.mul(achMult());
+  if (achs[17]) gain = gain.mul(3);
+
   voidAmt = voidAmt.add(gain.mul(dt));
+  if (voidAmt.gt(VOID_CAP)) voidAmt = new ExpantaNum(VOID_CAP);
+  keptBase7 = Math.max(keptBase7, 0.05 * lv[6]);
+  keptBase8 = Math.max(keptBase8, 0.005 * lv[7]);
   checkAchs();
-  save();
+  if (!hardResetting) save();
 
   var am = achMult();
-  document.getElementById("void").textContent = "Void: " + fmt(voidAmt);
+  document.getElementById("void").textContent = "Void: " + fmt(voidAmt) + (voidAmt.gte(VOID_CAP) ? " (CAPPED)" : "");
   document.getElementById("gain").textContent = "Gain: " + fmt(gain) + "/s";
-  document.getElementById("mult").textContent = "Achievement multiplier: x" + fmt(am) + " (" + achs.filter(Boolean).length + "/" + achs.length + " achievements)";
-  var btn = document.getElementById("buy");
-  var c1 = upg1Cost();
-  document.getElementById("upg").textContent =
-    "x2 Void Upgrade: Level " + level + "/" + upgMax(1) + ", Cost: " + fmt(c1);
-  btn.disabled = level >= upgMax(1) || voidAmt.lt(c1);
+  document.getElementById("mult").textContent =
+    "Achievement multiplier: x" + fmt(am) + " (" + achs.filter(Boolean).length + "/" + achs.length + " achievements)";
 
-  var cost2 = upg2Cost();
-  document.getElementById("upg2").textContent =
-    "x1.1 Void Upgrade: Level " + level2 + "/" + upgMax(2) + ", Cost: " + fmt(cost2);
-  document.getElementById("buy2").disabled = level2 >= upgMax(2) || voidAmt.lt(cost2);
+  var html = "";
+  for (var i = 1; i <= 14; i++) {
+    var c = COSTS[i - 1](lv[i - 1]);
+    var maxed = lv[i - 1] >= upgMax(i);
+    document.getElementById("upg" + i).textContent =
+      UPG_LABEL[i - 1] + " Void Upgrade: Level " + lv[i - 1] + "/" + upgMax(i) +
+      ", Cost: " + (maxed ? "MAX" : fmt(c));
+    document.getElementById("buy" + i).disabled = maxed || voidAmt.lt(c);
+  }
 
-  var cost3 = upg3Cost();
-  document.getElementById("upg3").textContent =
-    "x1.2 Void Upgrade: Level " + level3 + "/" + upgMax(3) + ", Cost: " + fmt(cost3);
-  document.getElementById("buy3").disabled = level3 >= upgMax(3) || voidAmt.lt(cost3);
-
-  var cost4 = upg4Cost();
-  document.getElementById("upg4").textContent =
-    "x1.5 Void Upgrade: Level " + level4 + "/" + upgMax(4) + ", Cost: " + fmt(cost4);
-  document.getElementById("buy4").disabled = level4 >= upgMax(4) || voidAmt.lt(cost4);
-
-  var cost5 = upg5Cost();
-  document.getElementById("upg5").textContent =
-    "x1.02 Void Upgrade: Level " + level5 + "/" + upgMax(5) + ", Cost: " + fmt(cost5);
-  document.getElementById("buy5").disabled = level5 >= upgMax(5) || voidAmt.lt(cost5);
-
-  var cost6 = upg6Cost();
-  document.getElementById("upg6").textContent =
-    "x3 Void Upgrade: Level " + level6 + "/" + upgMax(6) + ", Cost: " + fmt(cost6);
-  document.getElementById("buy6").disabled = level6 >= upgMax(6) || voidAmt.lt(cost6);
-
-  var cost7 = upg7Cost();
-  document.getElementById("upg7").textContent =
-    "x1.5 Void Upgrade: Level " + level7 + "/" + upgMax(7) + ", Cost: " + fmt(cost7);
-  document.getElementById("buy7").disabled = level7 >= upgMax(7) || voidAmt.lt(cost7);
-
-  var cost8 = upg8Cost();
-  document.getElementById("upg8").textContent =
-    "x1.05 Void Upgrade: Level " + level8 + "/" + upgMax(8) + ", Cost: " + fmt(cost8);
-  document.getElementById("buy8").disabled = level8 >= upgMax(8) || voidAmt.lt(cost8);
-
-  var cost9 = upg9Cost();
-  document.getElementById("upg9").textContent =
-    "x2 Void Upgrade: Level " + level9 + "/" + upgMax(9) + ", Cost: " + fmt(cost9);
-  document.getElementById("buy9").disabled = level9 >= upgMax(9) || voidAmt.lt(cost9);
-
-  var cost10 = upg10Cost();
-  document.getElementById("upg10").textContent =
-    "x2 Void Upgrade: Level " + level10 + "/" + upgMax(10) + ", Cost: " + fmt(cost10);
-  document.getElementById("buy10").disabled = level10 >= upgMax(10) || voidAmt.lt(cost10);
-
-  var cost11 = upg11Cost();
-  document.getElementById("upg11").textContent =
-    "x3 Void Upgrade: Level " + level11 + "/" + upgMax(11) + ", Cost: " + fmt(cost11);
-  document.getElementById("buy11").disabled = level11 >= upgMax(11) || voidAmt.lt(cost11);
-
-  var cost12 = upg12Cost();
-  document.getElementById("upg12").textContent =
-    "x10 Void Upgrade: Level " + level12 + "/" + upgMax(12) + ", Cost: " + fmt(cost12);
-  document.getElementById("buy12").disabled = level12 >= upgMax(12) || voidAmt.lt(cost12);
-
-  if (document.getElementById("alist").style.display !== "none") {
-    var html = "";
-    for (var i = 0; i < achs.length; i++) {
-      var label = ACH_NAMES[i] ? ACH_NAMES[i] + " (" + ACH_DESCS[i] + ")" : ACH_DESCS[i];
-      html += label + ": " + (achs[i] ? "Earned" : "Locked") + "<br>";
+  if (curTab === "achs") {
+    var ahtml = "";
+    for (var a = 0; a < achs.length; a++) {
+      var label = ACH_NAMES[a] ? ACH_NAMES[a] + " (" + ACH_DESCS[a] + ")" : ACH_DESCS[a];
+      ahtml += label + ": " + (achs[a] ? "Earned" : "Locked") + "<br>";
     }
-    document.getElementById("alist").innerHTML = html;
+    document.getElementById("alist").innerHTML = ahtml;
+  }
+
+  if (curTab === "quarks") {
+    var qg = quarkGain();
+    document.getElementById("qamt").textContent = "Quarks: " + fmt(quarks);
+    document.getElementById("qgaininfo").textContent = "Quarks on reset: " + qg;
+    document.getElementById("qreset").disabled = qg <= 0;
+    for (var qi = 1; qi <= 5; qi++) {
+      var btn = document.getElementById("qb" + qi);
+      var owned = quarkUpg[qi - 1];
+      var locked = (qi === 1 && quarkUpg[1]) || (qi === 2 && quarkUpg[0]);
+      btn.textContent = QUARK_DESCS[qi - 1] + (owned ? " (Bought)" : locked ? " (Locked)" : " — Requires: " + QUARK_COST[qi - 1] + " Quarks");
+      btn.disabled = owned || locked || quarks.lt(QUARK_COST[qi - 1]);
+    }
   }
 
   requestAnimationFrame(loop);
