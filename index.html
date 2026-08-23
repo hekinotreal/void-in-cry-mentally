@@ -96,7 +96,7 @@ function load() {
 
 function upgMax(i) {
   var extra = 0;
-  if (i <= 10 && achs[18]) extra += 10;
+  if (achs[18]) extra += 10;
   if (resetCount > 0) extra += 10;
   return UPG_MAX[i - 1] + extra;
 }
