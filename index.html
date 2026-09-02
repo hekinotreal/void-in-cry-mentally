@@ -10,7 +10,7 @@ body { background: darkblue; color: white; }
 </style>
 </head>
 <body>
-<div id="topright"><button id="export">Export</button><button id="import">Import</button><button id="atab">Achievements</button><button id="qtab">Quarks</button><button id="hardreset">Hard Reset</button></div>
+<div id="topright"><button id="export">Export</button><button id="import">Import</button><button id="atab">Achievements</button><button id="qtab">Quarks</button><button id="etab">Elements</button><button id="ctab" style="display:none">Challenges</button><button id="hardreset">Hard Reset</button></div>
 <div id="main">
 <div id="void"></div>
 <div id="gain"></div>
@@ -22,6 +22,10 @@ body { background: darkblue; color: white; }
 <div id="qamt"></div>
 <div id="qgaininfo"></div>
 <button id="qreset">Quark Reset</button>
+<br><br>
+<div id="aamt"></div>
+<div id="againinfo"></div>
+<button id="atomreset" style="display:none">Atom Reset</button>
 <br><br>
 <button id="qb1"></button>
 <button id="qb2"></button>
@@ -56,8 +60,12 @@ body { background: darkblue; color: white; }
 <button id="qb21"></button>
 <button id="qb22"></button>
 <br>
-<button id="qb13"></button>
+<button id="qb23"></button>
+<br>
 </div>
+<div id="elist" style="display:none"></div>
+<div id="clist" style="display:none"></div>
+<div id="einfo" style="position:fixed;display:none;background:#000;color:#fff;padding:6px 10px;z-index:100;pointer-events:none;white-space:pre;"></div>
 <script>
 var SAVE_KEY = "voidSave";
 var VIG_KEY = "void";
@@ -65,13 +73,26 @@ var VOID_CAP = new ExpantaNum("179e306"); // 179UCe
 var voidAmt = new ExpantaNum(0);
 var quarks = new ExpantaNum(0);
 var lv = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-var quarkUpg = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+var quarkUpg = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
 var keptBase7 = 0;
 var keptBase8 = 0;
 var resetCount = 0;
-var achs = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
-var ACH_NAMES = ["Generational start", "Starting off strong", "Voidless mess", "A million of nothing", "Wow ur far now", "Nothing but void", "Boring but free boost is always good", "Ooo so good", "Finally out of the hard part", "10 billion of nothing", "Robert", "Topala", "Interesting", "Tobert Ropala", "10th anniversary for upgrades", "Veeery intersting", "I hear something", "Quarter of the letter", "Deka-void", "", "Reach level 30 in Upgrade 12", "Finally something existant", "Wow the numbers are getting bigger but still capped haha", "Pretty far right?", "FINALLY NO CAP"];
-var ACH_DESCS = ["Get 1 Void", "Buy Upgrade 3", "Get 1000 Void", "Get 1 million Void", "Buy Upgrade 5", "Reach 100M Void", "Max out Upgrade 5", "Max out Upgrade 3", "Buy 2 of Upgrade 6", "Get 10 billion Void", "Reach 1 quadrillion Void", "Reach 1 quintillion Void", "Buy Upgrade 8", "Buy Upgrade 9", "Buy Upgrade 10", "Reach 5 octillion Void", "Reach 100 octillion Void", "Buy 50 levels of Upgrade 8", "Reach 1 decillion Void", "Buy Upgrade 11", "Reach level 30 in Upgrade 12", "Do a Quark reset", "Buy Quark Upgrade 4", "Buy Quark Upgrade 7", "Buy Quark Upgrade 10"];
+var maxReset = false;
+var atoms = new ExpantaNum(0);
+var atomResets = 0;
+var elemBought = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+var achs = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+var chalActive = false;
+var chalDone = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+var chalReward = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+var CHAL_GOALS = ["179e306"];
+var CHAL_DESCS = [
+  "Goal: 179UCe Void. Nerf: Void gain ^0.0000001, no achievement boost. Activating resets Void, Upgrades, Quarks, and Quark Upgrades (keeps Atoms, Elements, Achievements). Reward: x1M Atom gain"
+];
+var CHAL_NERFS = ["Void gain ^0.0000001, achievement boost disabled"];
+var CHAL_REWARDS = ["x1M Atom gain"];
+var ACH_NAMES = ["Generational start", "Starting off strong", "Voidless mess", "A million of nothing", "Wow ur far now", "Nothing but void", "Boring but free boost is always good", "Ooo so good", "Finally out of the hard part", "10 billion of nothing", "Robert", "Topala", "Interesting", "Tobert Ropala", "10th anniversary for upgrades", "Veeery intersting", "I hear something", "Quarter of the letter", "Deka-void", "", "Reach level 30 in Upgrade 12", "Finally something existant", "Wow the numbers are getting bigger but still capped haha", "Pretty far right?", "FINALLY NO CAP", "Atomic age"];
+var ACH_DESCS = ["Get 1 Void", "Buy Upgrade 3", "Get 1000 Void", "Get 1 million Void", "Buy Upgrade 5", "Reach 100M Void", "Max out Upgrade 5", "Max out Upgrade 3", "Buy 2 of Upgrade 6", "Get 10 billion Void", "Reach 1 quadrillion Void", "Reach 1 quintillion Void", "Buy Upgrade 8", "Buy Upgrade 9", "Buy Upgrade 10", "Reach 5 octillion Void", "Reach 100 octillion Void", "Buy 50 levels of Upgrade 8", "Reach 1 decillion Void", "Buy Upgrade 11", "Reach level 30 in Upgrade 12", "Do a Quark reset", "Buy Quark Upgrade 4", "Buy Quark Upgrade 7", "Buy Quark Upgrade 10", "Do an Atom reset"];
 var UPG_MAX = [5, 20, 42, 10, 20, 10, 20, 200, 10, 20, 50, 100, 100, 100, -10, 10, 15, 50, 50];
 var UPG_LABEL = ["x2", "x1.1", "x1.2", "x1.5", "x1.02", "x3", "x1.5", "x1.05", "x2", "x2", "x3", "x10", "x5", "x2", "x2 Quarks ^1.1", "x3 Quarks ^1.05", "x1.5 Quarks ^1.05", "x2 Quarks ^1.02", "x10 Quarks ^1.01"];
 var ACH_BONUS = 0.25;
@@ -101,10 +122,10 @@ var COSTS = [
 
 function save() {
   localStorage.setItem(SAVE_KEY, JSON.stringify({
-    v: voidAmt.toString(), k: quarks.toString(),
+    v: voidAmt.toString(), k: quarks.toString(), a: atoms.toString(), ar: atomResets,
     l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6],
     s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18],
-    c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, a: achs
+c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, cd: chalDone, cr: chalReward
   }));
 }
 
@@ -114,12 +135,19 @@ function load() {
     if (!d) return;
     voidAmt = new ExpantaNum(d.v);
     quarks = d.k !== undefined ? new ExpantaNum(d.k) : new ExpantaNum(0);
+    atoms = d.a !== undefined ? new ExpantaNum(d.a) : new ExpantaNum(0);
+    atomResets = d.ar || 0;
     lv[0] = d.l || 0; lv[1] = d.m || 0; lv[2] = d.n || 0; lv[3] = d.o || 0;
     lv[4] = d.p || 0; lv[5] = d.q || 0; lv[6] = d.r || 0; lv[7] = d.s || 0;
     lv[8] = d.t || 0; lv[9] = d.u || 0; lv[10] = d.w || 0; lv[11] = d.x || 0;
     lv[12] = d.y || 0; lv[13] = d.z || 0; lv[14] = d.aa || 0; lv[15] = d.ab || 0; lv[16] = d.ac || 0; lv[17] = d.ad || 0; lv[18] = d.ae || 0;
     if (d.c) for (var i = 0; i < quarkUpg.length; i++) quarkUpg[i] = !!d.c[i];
-    if (d.a) for (var j = 0; j < achs.length; j++) achs[j] = !!d.a[j];
+    if (d.ch) for (var j = 0; j < achs.length; j++) achs[j] = !!d.ch[j];
+    if (d.eb) for (var j = 0; j < elemBought.length; j++) elemBought[j] = !!d.eb[j];
+    maxReset = !!d.mr;
+    chalActive = !!d.ca;
+    if (d.cd) for (var j = 0; j < chalDone.length; j++) chalDone[j] = !!d.cd[j];
+    if (d.cr) for (var j = 0; j < chalReward.length; j++) chalReward[j] = !!d.cr[j];
     keptBase7 = d.b7 || 0;
     keptBase8 = d.b8 || 0;
     resetCount = d.rc || 0;
@@ -128,8 +156,8 @@ function load() {
 
 function upgMax(i) {
   var extra = 0;
-  if (achs[18]) extra += 10;
-  if (resetCount > 0) extra += 10;
+  if (!maxReset && achs[18]) extra += 10;
+  if (!maxReset && resetCount > 0) extra += 10;
   return UPG_MAX[i - 1] + extra;
 }
 
@@ -294,6 +322,17 @@ function quarkGain() {
   if (quarkUpg[13]) g = g.mul(50);
   if (quarkUpg[20]) g = g.mul("1.79e12");
   if (quarkUpg[21]) g = g.mul("1e68");
+  if (elemBought[0]) g = g.mul(2);
+  if (elemBought[1]) g = g.mul(10);
+  if (elemBought[2]) g = g.mul(10);
+  if (elemBought[3]) g = g.pow(2);
+  if (elemBought[4]) g = g.pow(5);
+  if (elemBought[5]) g = g.pow(2);
+  if (elemBought[6]) g = g.pow(25);
+  if (elemBought[7]) g = g.pow(3);
+  if (elemBought[8]) g = g.pow(50);
+  if (elemBought[9]) g = g.pow(50);
+  if (quarkUpg[22]) g = g.pow(1.5);
   g = g.mul(new ExpantaNum(2).pow(lv[14]));
   g = g.mul(new ExpantaNum(3).pow(lv[15]));
   g = g.mul(new ExpantaNum(1.5).pow(lv[16]));
@@ -311,7 +350,7 @@ function doQuarkReset() {
   var g = quarkGain();
   if (g.lte(0)) return;
   quarks = quarks.add(g);
-  if (quarks.gt(VOID_CAP)) quarks = new ExpantaNum(VOID_CAP);
+  if (!elemBought[5] && quarks.gt(VOID_CAP)) quarks = new ExpantaNum(VOID_CAP);
   if (!quarkUpg[9]) {
     voidAmt = new ExpantaNum(0);
     for (var i = 0; i < lv.length; i++) lv[i] = 0;
@@ -319,6 +358,77 @@ function doQuarkReset() {
   }
   if (!achs[21]) achs[21] = true;
 }
+
+function atomGain() {
+  if (quarks.lt(VOID_CAP)) return new ExpantaNum(0);
+  var l = quarks.log10().toNumber();
+  var g = Math.max(1, Math.floor(l / 308));
+  if (elemBought[0]) g *= 2;
+  if (elemBought[1]) g = g * 1.5;
+  if (elemBought[2]) g *= 3;
+  if (elemBought[3]) g *= 3;
+  if (elemBought[4]) g *= 50;
+  if (elemBought[5]) g *= 100;
+  if (elemBought[6]) g = Math.pow(g, 1.5);
+  if (elemBought[7]) g *= 10;
+  if (elemBought[8]) g *= 3;
+  if (quarkUpg[22]) g *= 100;
+  if (chalDone[0] || chalReward[0]) g *= 1e6;
+  return new ExpantaNum(Math.max(1, Math.floor(g)));
+}
+
+function doAtomReset() {
+  var g = atomGain();
+  if (g.lte(0)) return;
+  atoms = atoms.add(g);
+  atomResets++;
+  quarks = new ExpantaNum(0);
+  voidAmt = new ExpantaNum(0);
+  for (var i = 0; i < quarkUpg.length; i++) quarkUpg[i] = false;
+  resetCount = 0;
+  maxReset = true;
+  keptBase7 = 0;
+  keptBase8 = 0;
+  if (!achs[25]) achs[25] = true;
+}
+
+var ELEM_COST = ["1 Atom", "2 Atoms", "3 Atoms", "5 Atoms", "8 Atoms", "12 Atoms", "16 Atoms", "20 Atoms", "25 Atoms", "30 Atoms", "38 Atoms", "48 Atoms", "60 Atoms", "75 Atoms", "90 Atoms", "108 Atoms", "128 Atoms", "150 Atoms"];
+var ELEM_COST_NUM = [1, 2, 3, 5, 8, 12, 16, 20, 25, 30, 38, 48, 60, 75, 90, 108, 128, 150];
+function elemCostNum(i) {
+  if (i === 1) return new ExpantaNum(ELEM_COST_NUM[0]);
+  if (i === 2) return new ExpantaNum(ELEM_COST_NUM[1]);
+  if (i === 3) return new ExpantaNum(6);
+  if (i === 4) return new ExpantaNum(200);
+  if (i === 5) return new ExpantaNum(1000);
+  if (i === 6) return new ExpantaNum(20000);
+  if (i === 7) return new ExpantaNum(1e7);
+  if (i === 8) return new ExpantaNum(1e14);
+  if (i === 9) return new ExpantaNum(1e17);
+  if (i === 10) return new ExpantaNum(1e20);
+  if (i === 11) return new ExpantaNum(1e23);
+  if (i === 12) return new ExpantaNum(5e28);
+  if (!INF_COST) INF_COST = new ExpantaNum(Infinity);
+  return INF_COST;
+}
+var INF_COST = null;
+function elemCostStr(i) {
+  if (i === 1) return ELEM_COST[0];
+  if (i === 2) return ELEM_COST[1];
+  if (i === 3) return "6 Atoms";
+  if (i === 4) return "200 Atoms";
+  if (i === 5) return "1k Atoms";
+  if (i === 6) return "20k Atoms";
+  if (i === 7) return "10M Atoms";
+  if (i === 8) return "100T Atoms";
+  if (i === 9) return "100Qa Atoms";
+  if (i === 10) return "100Qt Atoms";
+  if (i === 11) return "100Sx Atoms";
+  if (i === 12) return "50Oc Atoms";
+  return "1J10";
+}
+var ELEM_EFFECT = [
+  "x2 Atoms, Autobuys Void upgrades, x2 Void, x2 Quarks",
+  "x10 Quarks, Void ^1.1, x1.5 Atoms, +1000% Quarks on reset per second", "Autobuys Quark upgrades, x3 Atoms, Void ^5, x10 Quarks",   "Void ^2, x3 Atoms, Quarks ^2", "Void ^5, Quarks ^5, x50 Atoms",   "Quarks ^2, Void ^2, x100 Atoms, Uncap Quarks", "Void ^25, Quarks ^25, Atoms ^1.5", "x10 Atoms, Quarks ^3, Void ^3", "Void ^50, Quarks ^50, x3 Atoms", "Void ^50, Quarks ^50", "Unlocks the Challenges tab", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon..."];
 
 function bulkAmount() {
   if (quarkUpg[7]) return 250;
@@ -355,11 +465,52 @@ for (var ui = 1; ui <= 19; ui++) {
 }
 
 function buyQuark(i) {
+  if (chalActive) return;
   if (quarkUpg[i - 1]) return;
   if ((i === 1 && quarkUpg[1]) || (i === 2 && quarkUpg[0])) return;
   if (quarks.lt(QUARK_COST[i - 1])) return;
   quarkUpg[i - 1] = true;
   if (i === 4 && !achs[22]) achs[22] = true;
+}
+
+function buyElement(i) {
+  if (elemBought[i - 1]) return;
+  if (i !== 1 && i !== 2 && i !== 3 && i !== 4 && i !== 5 && i !== 6 && i !== 7 && i !== 8 && i !== 9 && i !== 10 && i !== 11 && i !== 12) return;
+  if (atoms.lt(elemCostNum(i))) return;
+  atoms = atoms.sub(elemCostNum(i));
+  elemBought[i - 1] = true;
+}
+
+function activateChallenge(c) {
+  if (chalActive) return;
+  chalActive = true;
+  voidAmt = new ExpantaNum(0);
+  quarks = new ExpantaNum(0);
+  for (var i = 0; i < lv.length; i++) lv[i] = 0;
+  for (var i = 0; i < quarkUpg.length; i++) quarkUpg[i] = false;
+  resetCount = 0;
+}
+
+function completeChallenge(c) {
+  if (!chalActive || chalDone[c]) return;
+  if (voidAmt.lt(CHAL_GOALS[c])) return;
+  chalActive = false;
+  chalDone[c] = true;
+  voidAmt = new ExpantaNum(0);
+  quarks = new ExpantaNum(0);
+  for (var i = 0; i < lv.length; i++) lv[i] = 0;
+  for (var i = 0; i < quarkUpg.length; i++) quarkUpg[i] = false;
+  resetCount = 0;
+}
+
+function forfeitChallenge(c) {
+  if (!chalActive) return;
+  chalActive = false;
+  voidAmt = new ExpantaNum(0);
+  quarks = new ExpantaNum(0);
+  for (var i = 0; i < lv.length; i++) lv[i] = 0;
+  for (var i = 0; i < quarkUpg.length; i++) quarkUpg[i] = false;
+  resetCount = 0;
 }
 
 document.getElementById("qb1").onclick = function () { buyQuark(1); };
@@ -384,6 +535,7 @@ document.getElementById("qb19").onclick = function () { buyQuark(19); };
 document.getElementById("qb20").onclick = function () { buyQuark(20); };
 document.getElementById("qb21").onclick = function () { buyQuark(21); };
 document.getElementById("qb22").onclick = function () { buyQuark(22); };
+document.getElementById("qb23").onclick = function () { buyQuark(23); };
 document.getElementById("qreset").onclick = doQuarkReset;
 
 var hardResetting = false;
@@ -397,7 +549,7 @@ document.getElementById("hardreset").onclick = function () {
 };
 
 document.getElementById("export").onclick = function () {
-  prompt("Your save:", encodeSave({ v: voidAmt.toString(), k: quarks.toString(), l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6], s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18], c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, a: achs }));
+  prompt("Your save:", encodeSave({ v: voidAmt.toString(), k: quarks.toString(), a: atoms.toString(), ar: atomResets, l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6], s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18], c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, cd: chalDone, cr: chalReward }));
 };
 
 document.getElementById("import").onclick = function () {
@@ -407,12 +559,19 @@ document.getElementById("import").onclick = function () {
     var d = decodeSave(s);
     voidAmt = new ExpantaNum(d.v);
     quarks = d.k !== undefined ? new ExpantaNum(d.k) : new ExpantaNum(0);
+    atoms = d.a !== undefined ? new ExpantaNum(d.a) : new ExpantaNum(0);
+    atomResets = d.ar || 0;
     lv[0] = d.l || 0; lv[1] = d.m || 0; lv[2] = d.n || 0; lv[3] = d.o || 0;
     lv[4] = d.p || 0; lv[5] = d.q || 0; lv[6] = d.r || 0; lv[7] = d.s || 0;
     lv[8] = d.t || 0; lv[9] = d.u || 0; lv[10] = d.w || 0; lv[11] = d.x || 0;
     lv[12] = d.y || 0; lv[13] = d.z || 0; lv[14] = d.aa || 0; lv[15] = d.ab || 0; lv[16] = d.ac || 0; lv[17] = d.ad || 0; lv[18] = d.ae || 0;
     if (d.c) for (var i = 0; i < quarkUpg.length; i++) quarkUpg[i] = !!d.c[i];
-    if (d.a) for (var j = 0; j < achs.length; j++) achs[j] = !!d.a[j];
+    if (d.ch) for (var j = 0; j < achs.length; j++) achs[j] = !!d.ch[j];
+    if (d.eb) for (var j = 0; j < elemBought.length; j++) elemBought[j] = !!d.eb[j];
+    maxReset = !!d.mr;
+    chalActive = !!d.ca;
+    if (d.cd) for (var j = 0; j < chalDone.length; j++) chalDone[j] = !!d.cd[j];
+    if (d.cr) for (var j = 0; j < chalReward.length; j++) chalReward[j] = !!d.cr[j];
     keptBase7 = d.b7 || 0;
     keptBase8 = d.b8 || 0;
     resetCount = d.rc || 0;
@@ -428,7 +587,12 @@ function showTab(t) {
   document.getElementById("main").style.display = t === "main" ? "" : "none";
   document.getElementById("alist").style.display = t === "achs" ? "" : "none";
   document.getElementById("qlist").style.display = t === "quarks" ? "" : "none";
-  document.body.style.background = t === "quarks" ? "darkslateblue" : "darkblue";
+  document.getElementById("elist").style.display = t === "elements" ? "" : "none";
+  document.getElementById("clist").style.display = t === "challenges" ? "" : "none";
+  if (t === "elements") document.body.style.background = "darkslategray";
+  else if (t === "quarks") document.body.style.background = "darkslateblue";
+  else if (t === "challenges") document.body.style.background = "darkorchid";
+  else document.body.style.background = "darkblue";
 }
 
 document.getElementById("atab").onclick = function () {
@@ -439,7 +603,17 @@ document.getElementById("qtab").onclick = function () {
   showTab(curTab === "quarks" ? "main" : "quarks");
 };
 
-var QUARK_COST = [1, 1, 2, 3, 4, 6, 7, 10, 13, 15, 20, 50, "2e16", "5e20", "5e23", "1e27", "5e37", "1e65", "1e126", "1e196", "1e296", "1e229"];
+document.getElementById("etab").onclick = function () {
+  if (atomResets > 0) showTab(curTab === "elements" ? "main" : "elements");
+};
+
+document.getElementById("ctab").onclick = function () {
+  showTab(curTab === "challenges" ? "main" : "challenges");
+};
+
+document.getElementById("atomreset").onclick = doAtomReset;
+
+var QUARK_COST = [1, 1, 2, 3, 4, 6, 7, 10, 13, 15, 20, 50, "2e16", "5e20", "5e23", "1e27", "5e37", "1e65", "1e126", "1e196", "1e296", "1e229", "1e149124"];
 var QUARK_DESCS = [
   "x10 Void",
   "x1.2 Base achievement boost",
@@ -462,19 +636,20 @@ var QUARK_DESCS = [
   "Void gain ^1.7 + Quarks ^1.3 + Achievement boost x10 + formula ^10",
   "Void gain ^1.7 + Quarks ^1.3 + Achievement boost x10 + formula ^10",
   "x1.79T Quarks",
-  "x1e68 Quarks"
+  "x1e68 Quarks",
+  "x100 Atoms, Void ^1.5, Quarks ^1.5"
 ];
 
 function loop(now) {
   var dt = new ExpantaNum((now - last) / 1000);
   last = now;
 
-  var gain = new ExpantaNum(0.1).mul(new ExpantaNum(2).pow(lv[0])).mul(new ExpantaNum(1.1).pow(lv[1])).mul(new ExpantaNum(1.2).pow(lv[2])).mul(new ExpantaNum(1.5).pow(lv[3])).mul(new ExpantaNum(1.02).pow(lv[4])).mul(new ExpantaNum(3).pow(lv[5])).mul(new ExpantaNum(1.5).pow(lv[6])).mul(new ExpantaNum(1.05).pow(lv[7])).mul(new ExpantaNum(2).pow(lv[8])).mul(new ExpantaNum(2).pow(lv[9])).mul(new ExpantaNum(3).pow(lv[10])).mul(new ExpantaNum(10).pow(lv[11])).mul(new ExpantaNum(5).pow(lv[12])).mul(new ExpantaNum(2).pow(lv[13]));
+  var gain = new ExpantaNum(chalActive ? 1 : 0.1).mul(new ExpantaNum(2).pow(lv[0])).mul(new ExpantaNum(1.1).pow(lv[1])).mul(new ExpantaNum(1.2).pow(lv[2])).mul(new ExpantaNum(1.5).pow(lv[3])).mul(new ExpantaNum(1.02).pow(lv[4])).mul(new ExpantaNum(3).pow(lv[5])).mul(new ExpantaNum(1.5).pow(lv[6])).mul(new ExpantaNum(1.05).pow(lv[7])).mul(new ExpantaNum(2).pow(lv[8])).mul(new ExpantaNum(2).pow(lv[9])).mul(new ExpantaNum(3).pow(lv[10])).mul(new ExpantaNum(10).pow(lv[11])).mul(new ExpantaNum(5).pow(lv[12])).mul(new ExpantaNum(2).pow(lv[13]));
   if (quarkUpg[0]) gain = gain.mul(10);
   if (quarkUpg[2]) gain = gain.mul(50);
   if (quarkUpg[4]) gain = gain.mul(100);
-  gain = gain.mul(achMult());
-  if (achs[17]) gain = gain.mul(3);
+  if (!chalActive) gain = gain.mul(achMult());
+  if (!chalActive && achs[17]) gain = gain.mul(3);
   if (quarkUpg[8]) gain = gain.pow(1.1);
   if (quarkUpg[10]) gain = gain.pow(1.05);
   if (quarkUpg[11]) gain = gain.pow(1.3);
@@ -485,22 +660,51 @@ function loop(now) {
   if (quarkUpg[17]) gain = gain.pow(1.5);
   if (quarkUpg[18]) gain = gain.pow(1.7);
   if (quarkUpg[19]) gain = gain.pow(1.7);
+  if (quarkUpg[22]) gain = gain.pow(1.5);
   if (lv[14] > 0) gain = gain.pow(new ExpantaNum(1.1).pow(lv[14]));
   if (lv[15] > 0) gain = gain.pow(new ExpantaNum(1.05).pow(lv[15]));
   if (lv[16] > 0) gain = gain.pow(new ExpantaNum(1.05).pow(lv[16]));
   if (lv[17] > 0) gain = gain.pow(new ExpantaNum(1.02).pow(lv[17]));
   if (lv[18] > 0) gain = gain.pow(new ExpantaNum(1.01).pow(lv[18]));
+  if (elemBought[0]) gain = gain.mul(2);
+  if (elemBought[1]) gain = gain.pow(1.1);
+  if (elemBought[2]) gain = gain.pow(5);
+  if (elemBought[3]) gain = gain.pow(2);
+  if (elemBought[4]) gain = gain.pow(5);
+  if (elemBought[5]) gain = gain.pow(2);
+  if (elemBought[6]) gain = gain.pow(25);
+  if (elemBought[7]) gain = gain.pow(3);
+  if (elemBought[8]) gain = gain.pow(50);
+  if (elemBought[9]) gain = gain.pow(50);
+  if (chalActive) gain = gain.pow(0.0000001);
 
   voidAmt = voidAmt.add(gain.mul(dt));
+  if (elemBought[0]) {
+    for (var ai = 1; ai <= 19; ai++) {
+      while (lv[ai - 1] < upgMax(ai) && voidAmt.gte(COSTS[ai - 1](lv[ai - 1]))) {
+        voidAmt = voidAmt.sub(COSTS[ai - 1](lv[ai - 1]));
+        lv[ai - 1]++;
+      }
+    }
+  }
+  if (elemBought[2]) {
+    for (var qi = 1; qi <= 23; qi++) {
+      if (quarkUpg[qi - 1]) continue;
+      if ((qi === 1 && quarkUpg[1]) || (qi === 2 && quarkUpg[0])) continue;
+      if (quarks.gte(QUARK_COST[qi - 1])) buyQuark(qi);
+    }
+  }
+  if (elemBought[1]) quarks = quarks.add(quarkGain().mul(10).mul(dt));
   if (!quarkUpg[9] && voidAmt.gt(VOID_CAP)) voidAmt = new ExpantaNum(VOID_CAP);
   keptBase7 = Math.max(keptBase7, 0.05 * lv[6]);
   keptBase8 = Math.max(keptBase8, 0.005 * lv[7]);
   checkAchs();
-  if (quarks.gt(VOID_CAP)) quarks = new ExpantaNum(VOID_CAP);
+  if (chalActive) completeChallenge(0);
+  if (!elemBought[5] && quarks.gt(VOID_CAP)) quarks = new ExpantaNum(VOID_CAP);
   if (!hardResetting) save();
 
   var am = achMult();
-  document.getElementById("void").textContent = "Void: " + fmt(voidAmt) + (quarkUpg[9] ? "" : (voidAmt.gte(VOID_CAP) ? " (CAPPED)" : ""));
+  document.getElementById("void").textContent = "Void: " + fmt(voidAmt) + ((quarkUpg[9] || elemBought[5]) ? "" : (voidAmt.gte(VOID_CAP) ? " (CAPPED)" : ""));
   document.getElementById("gain").textContent = "Gain: " + fmt(gain) + "/s";
   document.getElementById("mult").textContent =
     "Achievement multiplier: x" + fmt(am) + " (" + achs.filter(Boolean).length + "/" + achs.length + " achievements)";
@@ -526,10 +730,16 @@ function loop(now) {
 
   if (curTab === "quarks") {
     var qg = quarkGain();
-    document.getElementById("qamt").textContent = "Quarks: " + fmt(quarks) + (quarks.gte(VOID_CAP) ? " (CAPPED)" : "");
+    var ag = atomGain();
+    document.getElementById("qamt").textContent = "Quarks: " + fmt(quarks) + ((elemBought[5]) ? "" : (quarks.gte(VOID_CAP) ? " (CAPPED)" : ""));
     document.getElementById("qgaininfo").textContent = "Quarks on reset: " + fmt(qg);
     document.getElementById("qreset").disabled = qg.lte(0);
-    for (var qi = 1; qi <= 22; qi++) {
+    document.getElementById("aamt").textContent = "Atoms: " + fmt(atoms);
+    document.getElementById("againinfo").textContent = "Atoms on reset: " + fmt(ag);
+    var atomBtn = document.getElementById("atomreset");
+    atomBtn.style.display = quarks.gte(VOID_CAP) ? "" : "none";
+    atomBtn.disabled = ag.lte(0);
+    for (var qi = 1; qi <= 23; qi++) {
       var btn = document.getElementById("qb" + qi);
       var owned = quarkUpg[qi - 1];
       var locked = (qi === 1 && quarkUpg[1]) || (qi === 2 && quarkUpg[0]);
@@ -537,6 +747,109 @@ function loop(now) {
       btn.disabled = owned || locked || quarks.lt(QUARK_COST[qi - 1]);
     }
   }
+
+  if (curTab === "challenges") {
+    var clist = document.getElementById("clist");
+    if (!clist.dataset.init) {
+      clist.dataset.init = "1";
+      var chtml = "<div style='font-size:20px;margin-bottom:10px'>Challenges</div>";
+      chtml += "<div id='cprog' style='color:#ffd700'></div><br>";
+      for (var cc = 0; cc < CHAL_GOALS.length; cc++) {
+        chtml += "<div style='margin-bottom:8px'>Challenge " + (cc + 1) + ": " + CHAL_DESCS[cc] + "<br>Status: <span id='cs" + cc + "'>Not done</span><br>";
+        chtml += "<button id='cb" + cc + "'>Activate</button> ";
+        chtml += "<button id='xf" + cc + "' style='display:none'>Forfeit</button></div>";
+      }
+      clist.innerHTML = chtml;
+      for (var cc = 0; cc < CHAL_GOALS.length; cc++) {
+        (function (idx) {
+          document.getElementById("cb" + idx).onclick = function () {
+            if (chalActive) completeChallenge(idx); else activateChallenge(idx);
+          };
+          document.getElementById("xf" + idx).onclick = function () { forfeitChallenge(idx); };
+        })(cc);
+      }
+    }
+    var progEl = document.getElementById("cprog");
+    progEl.textContent = chalActive ? ("Challenge active! Progress: " + fmt(voidAmt) + " / " + fmt(new ExpantaNum(CHAL_GOALS[0]))) : "";
+    for (var cc = 0; cc < CHAL_GOALS.length; cc++) {
+      var sEl = document.getElementById("cs" + cc);
+      sEl.textContent = chalDone[cc] ? "Completed" : (chalActive && cc === 0 ? "Active" : "Not done");
+      var cbEl = document.getElementById("cb" + cc);
+      cbEl.style.display = chalActive ? "none" : "";
+      cbEl.textContent = chalDone[cc] ? "Replay" : "Activate";
+      document.getElementById("xf" + cc).style.display = chalActive ? "" : "none";
+    }
+  }
+
+  if (curTab === "elements" && atomResets > 0) {
+    var et = document.getElementById("elist");
+    if (!et.dataset.init) {
+      et.dataset.init = "1";
+      var ELEMENTS = [
+        ["H","Hydrogen",[1,1]],["He","Helium",[1,18]],
+        ["Li","Lithium",[2,1]],["Be","Beryllium",[2,2]],["B","Boron",[2,13]],["C","Carbon",[2,14]],["N","Nitrogen",[2,15]],["O","Oxygen",[2,16]],["F","Fluorine",[2,17]],["Ne","Neon",[2,18]],
+        ["Na","Sodium",[3,1]],["Mg","Magnesium",[3,2]],["Al","Aluminium",[3,13]],["Si","Silicon",[3,14]],["P","Phosphorus",[3,15]],["S","Sulfur",[3,16]],["Cl","Chlorine",[3,17]],["Ar","Argon",[3,18]],
+        ["K","Potassium",[4,1]],["Ca","Calcium",[4,2]],["Sc","Scandium",[4,3]],["Ti","Titanium",[4,4]],["V","Vanadium",[4,5]],["Cr","Chromium",[4,6]],["Mn","Manganese",[4,7]],["Fe","Iron",[4,8]],["Co","Cobalt",[4,9]],["Ni","Nickel",[4,10]],["Cu","Copper",[4,11]],["Zn","Zinc",[4,12]],["Ga","Gallium",[4,13]],["Ge","Germanium",[4,14]],["As","Arsenic",[4,15]],["Se","Selenium",[4,16]],["Br","Bromine",[4,17]],["Kr","Krypton",[4,18]],
+        ["Rb","Rubidium",[5,1]],["Sr","Strontium",[5,2]],["Y","Yttrium",[5,3]],["Zr","Zirconium",[5,4]],["Nb","Niobium",[5,5]],["Mo","Molybdenum",[5,6]],["Tc","Technetium",[5,7]],["Ru","Ruthenium",[5,8]],["Rh","Rhodium",[5,9]],["Pd","Palladium",[5,10]],["Ag","Silver",[5,11]],["Cd","Cadmium",[5,12]],["In","Indium",[5,13]],["Sn","Tin",[5,14]],["Sb","Antimony",[5,15]],["Te","Tellurium",[5,16]],["I","Iodine",[5,17]],["Xe","Xenon",[5,18]],
+        ["Cs","Caesium",[6,1]],["Ba","Barium",[6,2]],["La","Lanthanum",[6,3]],["Hf","Hafnium",[6,4]],["Ta","Tantalum",[6,5]],["W","Tungsten",[6,6]],["Re","Rhenium",[6,7]],["Os","Osmium",[6,8]],["Ir","Iridium",[6,9]],["Pt","Platinum",[6,10]],["Au","Gold",[6,11]],["Hg","Mercury",[6,12]],["Tl","Thallium",[6,13]],["Pb","Lead",[6,14]],["Bi","Bismuth",[6,15]],["Po","Polonium",[6,16]],["At","Astatine",[6,17]],["Rn","Radon",[6,18]],
+        ["Fr","Francium",[7,1]],["Ra","Radium",[7,2]],["Ac","Actinium",[7,3]],["Rf","Rutherfordium",[7,4]],["Db","Dubnium",[7,5]],["Sg","Seaborgium",[7,6]],["Bh","Bohrium",[7,7]],["Hs","Hassium",[7,8]],["Mt","Meitnerium",[7,9]],["Ds","Darmstadtium",[7,10]],["Rg","Roentgenium",[7,11]],["Cn","Copernicium",[7,12]],["Nh","Nihonium",[7,13]],["Fl","Flerovium",[7,14]],["Mc","Moscovium",[7,15]],["Lv","Livermorium",[7,16]],["Ts","Tennessine",[7,17]],["Og","Oganesson",[7,18]],
+        ["Ce","Cerium",[8,4]],["Pr","Praseodymium",[8,5]],["Nd","Neodymium",[8,6]],["Pm","Promethium",[8,7]],["Sm","Samarium",[8,8]],["Eu","Europium",[8,9]],["Gd","Gadolinium",[8,10]],["Tb","Terbium",[8,11]],["Dy","Dysprosium",[8,12]],["Ho","Holmium",[8,13]],["Er","Erbium",[8,14]],["Tm","Thulium",[8,15]],["Yb","Ytterbium",[8,16]],["Lu","Lutetium",[8,17]],
+        ["Th","Thorium",[9,4]],["Pa","Protactinium",[9,5]],["U","Uranium",[9,6]],["Np","Neptunium",[9,7]],["Pu","Plutonium",[9,8]],["Am","Americium",[9,9]],["Cm","Curium",[9,10]],["Bk","Berkelium",[9,11]],["Cf","Californium",[9,12]],["Es","Einsteinium",[9,13]],["Fm","Fermium",[9,14]],["Md","Mendelevium",[9,15]],["No","Nobelium",[9,16]],["Lr","Lawrencium",[9,17]]
+      ];
+      var grid = {};
+      for (var ei = 0; ei < ELEMENTS.length; ei++) {
+        var el = ELEMENTS[ei];
+        var p = el[2];
+        grid[p[0] + ":" + p[1]] = "<div class='elem' data-idx='" + ei + "' data-name='" + el[0] + "' data-info='" + ELEM_EFFECT[ei] + "\nCost: " + elemCostStr(ei + 1) + "' style='width:60px;height:60px;margin:3px;text-align:center;background:#8b0000;color:#fff;cursor:pointer'><div style='font-size:10px'>#" + (ei + 1) + "</div><div style='font-size:18px;font-weight:bold'>" + el[0] + "</div><div style='font-size:8px'>" + el[1] + "</div></div>";
+      }
+      var html = "<div style='font-size:20px;margin-bottom:10px'>Element Table</div>";
+      for (var r = 1; r <= 9; r++) {
+        html += "<div style='display:grid;grid-template-columns:repeat(18,66px);margin-bottom:2px'>";
+        for (var c = 1; c <= 18; c++) {
+          html += grid[r + ":" + c] || "<div style='width:60px;height:70px;margin:3px'></div>";
+        }
+        html += "</div>";
+        if (r === 7) {
+          html += "<div style='height:36px'></div>";
+        }
+      }
+      et.innerHTML = html;
+      var tooltip = document.getElementById("einfo");
+      var cells = et.getElementsByClassName("elem");
+      for (var c = 0; c < cells.length; c++) {
+        (function (cell) {
+          cell.onmouseenter = function () {
+            tooltip.textContent = cell.dataset.name + "\n" + cell.dataset.info;
+            tooltip.style.display = "block";
+          };
+          cell.onmousemove = function (e) {
+            tooltip.style.left = (e.clientX + 12) + "px";
+            tooltip.style.top = (e.clientY + 12) + "px";
+          };
+          cell.onmouseleave = function () {
+            tooltip.style.display = "none";
+          };
+          cell.onclick = function () {
+            var idx = parseInt(cell.dataset.idx);
+            buyElement(idx + 1);
+          };
+        })(cells[c]);
+      }
+    }
+    var updCells = et.getElementsByClassName("elem");
+    for (var ci = 0; ci < updCells.length; ci++) {
+      var eidx = parseInt(updCells[ci].dataset.idx);
+      if (elemBought[eidx]) {
+        updCells[ci].style.background = "#006400";
+      } else if (atoms.gte(elemCostNum(eidx + 1))) {
+        updCells[ci].style.background = "#8b8b00";
+      } else {
+        updCells[ci].style.background = "#8b0000";
+      }
+    }
+  }
+
+  document.getElementById("ctab").style.display = elemBought[10] ? "" : "none";
 
   requestAnimationFrame(loop);
 }
