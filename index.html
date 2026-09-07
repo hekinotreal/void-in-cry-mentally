@@ -10,7 +10,7 @@ body { background: darkblue; color: white; }
 </style>
 </head>
 <body>
-<div id="topright"><button id="export">Export</button><button id="import">Import</button><button id="atab">Achievements</button><button id="qtab">Quarks</button><button id="etab">Elements</button><button id="ctab" style="display:none">Challenges</button><button id="itab" style="display:none">Infinite</button><button id="rtab" style="display:none">RGB</button><button id="ttab" style="display:none">Time Travelling</button><button id="spab" style="display:none">Space</button><button id="hardreset">Hard Reset</button></div>
+<div id="topright"><button id="export">Export</button><button id="import">Import</button><button id="atab">Achievements</button><button id="qtab">Quarks</button><button id="etab">Elements</button><button id="ctab" style="display:none">Challenges</button><button id="itab" style="display:none">Infinite</button><button id="rtab" style="display:none">RGB</button><button id="ttab" style="display:none">Time Travelling</button><button id="spab" style="display:none">Space</button><button id="mtab" style="display:none">Milestones</button><button id="clicktab" style="display:none">Clicker</button><button id="tytab" style="display:none">Tycoon</button><button id="hardreset">Hard Reset</button></div>
 <div id="savepopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:200;">
   <div id="savepop-title">Save</div>
   <textarea id="savebox" style="width:100%;height:180px;"></textarea>
@@ -74,6 +74,31 @@ body { background: darkblue; color: white; }
 <div id="rlist" style="display:none"></div>
 <div id="ttlist" style="display:none"></div>
 <div id="spalist" style="display:none"></div>
+<div id="mlist" style="display:none"></div>
+<div id="clicklist" style="display:none">
+<div id="clickamt"></div>
+<br>
+<button id="clickbtn">Click</button>
+<br><br>
+<div style="font-size:13px;margin-top:4px">Clicker Level: <span id="clvltext"></span> | Perks: <span id="perkamt"></span></div>
+<div style="width:320px;height:26px;border:2px solid #fff;background:#222;position:relative;margin:6px auto">
+  <div id="curlvlfill" style="width:0%;height:100%;background:#00c853"></div>
+  <div id="curlvltext" style="position:absolute;top:0;left:0;width:100%;height:100%;line-height:26px;font-size:13px"></div>
+</div>
+<br>
+<button id="pk1">Supernova Boost</button>
+<button id="pk2">Click Boost</button>
+<button id="pk3">Dust & Comet Boost</button>
+<br><br>
+<div style="font-size:17px;font-weight:bold">Clicker Upgrades</div>
+<button id="cu1">Clicker Boost I</button>
+<button id="cu2">Clicker Boost II</button>
+</div>
+<div id="tylist" style="display:none">
+<div id="moneyamt"></div>
+<br>
+<button id="ty1">Tycoon Upgrade I</button>
+</div>
 <div id="einfo" style="position:fixed;display:none;background:#000;color:#fff;padding:6px 10px;z-index:100;pointer-events:none;white-space:pre;"></div>
 <script>
 var SAVE_KEY = "voidSave";
@@ -96,6 +121,18 @@ var timeBought = false;
 var cosmicDust = new ExpantaNum(0);
 var comets = new ExpantaNum(0);
 var cometUpg = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+var supernova = new ExpantaNum(0);
+var snTotal = new ExpantaNum(0);
+var snMilestones = [false, false, false, false, false];
+var snUpg = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+var clicks = new ExpantaNum(0);
+var clickerLvl = 0;
+var perks = 0;
+var perkLvl = [0, 0, 0];
+var PERK_MAX = [10, 25, 100];
+var clickUpgLvl = [0, 0];
+var money = new ExpantaNum(0);
+var tyUpgs = [false, false, false, false, false];
 var spaceB = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
 var spaceLvl = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var atoms = new ExpantaNum(0);
@@ -151,7 +188,7 @@ function save() {
     v: sane(voidAmt).toString(), k: sane(quarks).toString(), a: sane(atoms).toString(), ar: atomResets,
     l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6],
     s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18],
-c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: sane(red).toString(), gr: sane(green).toString(), bl: sane(blue).toString(), tp: sane(ttparts).toString(), tm: timeBought, cdst: sane(cosmicDust).toString(), sb: spaceB, sl: spaceLvl, cm: sane(comets).toString(), cu: cometUpg
+c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: sane(red).toString(), gr: sane(green).toString(), bl: sane(blue).toString(), tp: sane(ttparts).toString(), tm: timeBought, cdst: sane(cosmicDust).toString(), sb: spaceB, sl: spaceLvl, cm: sane(comets).toString(), cu: cometUpg, sn: sane(supernova).toString(), snT: sane(snTotal).toString(), snm: snMilestones, snu: snUpg, cl: sane(clicks).toString(), cll: clickerLvl, clk: perks, clv: perkLvl, clu: clickUpgLvl, mo: sane(money).toString(), ty: tyUpgs
   }));
 }
 
@@ -192,6 +229,17 @@ function load() {
     if (d.sl) for (var sli = 0; sli < spaceLvl.length; sli++) spaceLvl[sli] = d.sl[sli] || 0;
     comets = d.cm !== undefined ? sane(new ExpantaNum(d.cm)) : new ExpantaNum(0);
     if (d.cu) for (var cui = 0; cui < cometUpg.length; cui++) cometUpg[cui] = !!d.cu[cui];
+    supernova = d.sn !== undefined ? sane(new ExpantaNum(d.sn)) : new ExpantaNum(0);
+    snTotal = d.snT !== undefined ? sane(new ExpantaNum(d.snT)) : new ExpantaNum(0);
+    if (d.snm) for (var smi = 0; smi < snMilestones.length; smi++) snMilestones[smi] = !!d.snm[smi];
+    if (d.snu) for (var siu = 0; siu < snUpg.length; siu++) snUpg[siu] = !!d.snu[siu];
+    clicks = d.cl !== undefined ? sane(new ExpantaNum(d.cl)) : new ExpantaNum(0);
+    clickerLvl = d.cll || 0;
+    perks = d.clk || 0;
+    if (d.clv) for (var ckl = 0; ckl < perkLvl.length; ckl++) perkLvl[ckl] = d.clv[ckl] || 0;
+    if (d.clu) for (var cku2 = 0; cku2 < clickUpgLvl.length; cku2++) clickUpgLvl[cku2] = d.clu[cku2] || 0;
+    money = d.mo !== undefined ? sane(new ExpantaNum(d.mo)) : new ExpantaNum(0);
+    if (d.ty) for (var tyi = 0; tyi < tyUpgs.length; tyi++) tyUpgs[tyi] = !!d.ty[tyi];
     hBonus = !!d.hb;
     if (elemBought[0] && !hBonus) {
       for (var vi = 0; vi < lv.length; vi++) lv[vi] += 20;
@@ -447,6 +495,7 @@ function atomGain() {
   if (timeBought) g = g.pow(1.05);
   if (spaceLvl[10] > 0) g = g.pow(new ExpantaNum(1.005).pow(spaceLvl[10]));
   if (spaceB[11] && cosmicDust.gt(1)) g = g.pow(cosmicDust.log10());
+  if (cometUpg[7]) g = g.pow(comets.gte(100) ? comets.log10().div(2).pow(0.2) : new ExpantaNum(1));
   return g.floor().max(new ExpantaNum(1));
 }
 
@@ -507,6 +556,15 @@ function elemCostNum(i) {
   if (i === 37) return new ExpantaNum("1e141099");
   if (i === 38) return new ExpantaNum("1e143900");
   if (i === 39) return new ExpantaNum("1e3.7e6");
+  if (i === 40) return new ExpantaNum("1e165e6");
+  if (i === 41) return new ExpantaNum("1e300e6");
+  if (i === 42) return new ExpantaNum("1e450e6");
+  if (i === 43) return new ExpantaNum("1e1.11e9");
+  if (i === 44) return new ExpantaNum("1e2.5e9");
+  if (i === 45) return new ExpantaNum("1e4.2e9");
+  if (i === 46) return new ExpantaNum("1e4.6e9");
+  if (i === 47) return new ExpantaNum("1e5e9");
+  if (i === 48) return new ExpantaNum("1e9.2e9");
   if (!INF_COST) INF_COST = new ExpantaNum(Infinity);
   return INF_COST;
 }
@@ -551,11 +609,21 @@ function elemCostStr(i) {
   if (i === 37) return "1e141099 Atoms";
   if (i === 38) return "1e143900 Atoms";
   if (i === 39) return "1e3.7M Atoms";
+  if (i === 40) return "1e165M Atoms";
+  if (i === 41) return "1e300M Atoms";
+  if (i === 42) return "1e450M Atoms";
+  if (i === 43) return "1e1.11B Atoms";
+  if (i === 44) return "1e2.5B Atoms";
+  if (i === 45) return "1e4.20B Atoms";
+  if (i === 46) return "1e4.60B Atoms";
+  if (i === 47) return "1e5B Atoms";
+  if (i === 48) return "1e9.2B Atoms";
   return "1J10";
 }
 var ELEM_EFFECT = [
   "x2 Atoms, Autobuys Void upgrades, x2 Void, x2 Quarks, +20 levels to all Void upgrades",
-  "x10 Quarks, Void ^1.1, x1.5 Atoms, +1000% Quarks on reset per second", "Autobuys Quark upgrades, x3 Atoms, Void ^5, x10 Quarks",   "Void ^2, x3 Atoms, Quarks ^2", "Void ^5, Quarks ^5, x50 Atoms",   "Quarks ^2, Void ^2, x100 Atoms, Uncap Quarks", "Void ^25, Quarks ^25, Atoms ^1.5", "x10 Atoms, Quarks ^3, Void ^3", "Void ^50, Quarks ^50, x3 Atoms", "Void ^50, Quarks ^50", "Unlocks the Challenges tab", "^100 Void", "^100 Quarks", "x100 Atoms", "Unlocks the Infinite tab", "Infinite Upgrade cost x25 -> x10", "x100 Atoms, Infinite Upgrade cost x10 -> x5", "Atoms +10000%/s, x100 Atoms", "x1k Atoms, ^100 Quarks, ^10000 Void", "x10K Atoms, Infinite Upgrade cost x5 -> x4", "x100K Atoms, Infinite Upgrade cost x4 -> x3", "Infinite Upgrade max level +100", "x10K Atoms, ^100 Void, ^100 Quarks", "^100M Void, ^100M Quarks, x100 Atoms", "x100 Atoms, Infinite upgrade max +500, Autobuys Infinite upgrade", "x10K Atoms, ^100B Void, ^100B Quarks", "Unlocks the RGB tab", "RGB ^1.05/s, RGB cap 1e3003", "RGB ^1.3/s, RGB cap 1e3M", "RGB ^100/s, RGB cap 1e10DTg", "Infinite upgrade max +9300", "Unlocks the Time Travelling tab", "Atoms ^1.05", "Quarks ^1e100, Void ^1e100", "Infinite upgrade max +90000, Infinite upgrade cost x3 -> x4.5", "Unlocks Time in Time Travelling", "Unlocks the Space tab", "Cosmic dust rate x (log10(cosmic dust))^1.2", "x10 cosmic dust", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon..."];
+  "x10 Quarks, Void ^1.1, x1.5 Atoms, +1000% Quarks on reset per second", "Autobuys Quark upgrades, x3 Atoms, Void ^5, x10 Quarks",   "Void ^2, x3 Atoms, Quarks ^2", "Void ^5, Quarks ^5, x50 Atoms",   "Quarks ^2, Void ^2, x100 Atoms, Uncap Quarks", "Void ^25, Quarks ^25, Atoms ^1.5", "x10 Atoms, Quarks ^3, Void ^3", "Void ^50, Quarks ^50, x3 Atoms", "Void ^50, Quarks ^50", "Unlocks the Challenges tab", "^100 Void", "^100 Quarks", "x100 Atoms", "Unlocks the Infinite tab", "Infinite Upgrade cost x25 -> x10", "x100 Atoms, Infinite Upgrade cost x10 -> x5", "Atoms +10000%/s, x100 Atoms", "x1k Atoms, ^100 Quarks, ^10000 Void", "x10K Atoms, Infinite Upgrade cost x5 -> x4", "x100K Atoms, Infinite Upgrade cost x4 -> x3", "Infinite Upgrade max level +100", "x10K Atoms, ^100 Void, ^100 Quarks", "^100M Void, ^100M Quarks, x100 Atoms", "x100 Atoms, Infinite upgrade max +500, Autobuys Infinite upgrade", "x10K Atoms, ^100B Void, ^100B Quarks", "Unlocks the RGB tab", "RGB ^1.05/s, RGB cap 1e3003", "RGB ^1.3/s, RGB cap 1e3M", "RGB ^100/s, RGB cap 1e10DTg", "Infinite upgrade max +9300", "Unlocks the Time Travelling tab", "Atoms ^1.05", "Quarks ^1e100, Void ^1e100", "Infinite upgrade max +90000, Infinite upgrade cost x3 -> x4.5", "Unlocks Time in Time Travelling", "Unlocks the Space tab", "Cosmic dust rate x (log10(cosmic dust))^1.2", "x10 cosmic dust", "x100 cosmic dust, x10 comets", "x1B cosmic dust, x2 comets, Cosmic dust & Comets x(log10(CD)^1)", "Cosmic dust ^1.05, x40 comets", "Cosmic dust ^1.1, Comets ^1.2",
+  "x3 Supernovas, Unlocks a new Supernova Upgrade", "x100 Clicks", "x5000 Clicks, x3 Supernovas", "x1M Clicks, x10 Supernovas", "Unlocks the Tycoon tab", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon..."];
 
 function bulkAmount() {
   if (quarkUpg[7]) return 250;
@@ -699,27 +767,52 @@ function spaceTreeLevels() {
   return l;
 }
 function cosmicDustRate() {
-  var r = 1;
-  if (spaceB[2]) r += 1;
-  if (spaceB[3]) r *= 2;
-  if (spaceB[4]) r *= 1.5;
-  if (spaceB[5]) r *= 5;
-  if (spaceB[6]) r *= 2;
-  if (spaceB[7]) r *= 4;
-  if (spaceB[8]) r *= 10;
-  if (spaceB[9]) r *= 2;
-  if (spaceB[11]) r *= 10;
-  if (spaceB[12]) r *= 5;
-  if (spaceB[13]) r *= 50;
-  if (spaceB[14]) r *= 10;
-  if (elemBought[38]) r *= 10;
-  if (cometUpg[0]) r *= 2.5;
+  var r = new ExpantaNum(1);
+  if (spaceB[2]) r = r.add(1);
+  if (spaceB[3]) r = r.mul(2);
+  if (spaceB[4]) r = r.mul(1.5);
+  if (spaceB[5]) r = r.mul(5);
+  if (spaceB[6]) r = r.mul(2);
+  if (spaceB[7]) r = r.mul(4);
+  if (spaceB[8]) r = r.mul(10);
+  if (spaceB[9]) r = r.mul(2);
+  if (spaceB[11]) r = r.mul(10);
+  if (spaceB[12]) r = r.mul(5);
+  if (spaceB[13]) r = r.mul(50);
+  if (spaceB[14]) r = r.mul(10);
+  if (elemBought[38]) r = r.mul(10);
+  if (cometUpg[0]) r = r.mul(2.5);
   if (cometUpg[1] && cosmicDust.gte(1e5)) {
     var twop = Math.floor(cosmicDust.log10().sub(5).div(ExpantaNum.log10(2.5)).toNumber() + 1e-9);
-    if (twop > 0) r = r * Math.min(Math.pow(1.5, twop), 1.79e308);
+    if (twop > 0) r = r.mul(new ExpantaNum(1.5).pow(twop).min(new ExpantaNum("1.79e308")));
   }
-  if (cometUpg[2]) r *= 10;
-  if (elemBought[37] && cosmicDust.gt(1)) r = r * Math.pow(cosmicDust.log10(), 1.2);
+  if (cometUpg[2]) r = r.mul(10);
+  if (cometUpg[3]) {
+    var p = comets.gt(1) ? comets.log10().div(308).pow(0.1).add(1) : new ExpantaNum(1);
+    r = r.pow(p).mul(50);
+  }
+  if (cometUpg[4]) r = r.mul(100);
+  if (cometUpg[6]) {
+    var sc = 0;
+    for (var si1 = 1; si1 < spaceB.length; si1++) if (spaceB[si1]) sc++;
+    for (var ci1 = 0; ci1 < cometUpg.length; ci1++) if (cometUpg[ci1]) sc++;
+    r = r.mul(new ExpantaNum(5).pow(sc));
+  }
+  if (cometUpg[7]) r = r.mul(100);
+  if (elemBought[39]) r = r.mul(100);
+  if (cometUpg[8]) r = r.mul(1e6);
+  if (cometUpg[9]) r = r.pow(1.05);
+  if (snMilestones[0]) r = r.mul(4);
+  if (elemBought[40]) r = r.mul(1e9);
+  if (elemBought[40] && cosmicDust.gt(1)) r = r.mul(cosmicDust.log10().pow(1));
+  if (elemBought[41]) r = r.pow(1.05);
+  if (elemBought[42]) r = r.pow(1.1);
+  if (snUpg[1]) r = r.mul(100);
+  if (snUpg[2]) r = r.pow(1.1);
+  if (snMilestones[1]) r = r.pow(1.05);
+  if (clickUpgLvl[0] > 0) r = r.pow(new ExpantaNum(1.01).pow(clickUpgLvl[0]));
+  if (perkLvl[2] > 0) r = r.pow(new ExpantaNum(1.01).pow(perkLvl[2]));
+  if (elemBought[37] && cosmicDust.gt(1)) r = r.mul(cosmicDust.log10().pow(1.2));
   return r;
 }
 function buySpace(i) {
@@ -737,14 +830,47 @@ function buySpace(i) {
 var COMET_UPGRADES = [
   { name: "Comet Boost", info: "x2.5 cosmic dust", cost: new ExpantaNum(0.1) },
   { name: "CD exchanging", info: "x10 comets, Cosmic dust x1.5 every 2.5x (from 100K CD), cap x1.79e308", cost: new ExpantaNum(0.2) },
-  { name: "we are getting faster with this peak boost", info: "x10 cosmic dust, x2 comets", cost: new ExpantaNum(1.5) }
+  { name: "we are getting faster with this peak boost", info: "x10 cosmic dust, x2 comets", cost: new ExpantaNum(1.5) },
+  { name: "WOW new update starts fresh with a formula", info: "x50 cosmic dust, Cosmic dust ^((log1e308(Comets))^0.1+1), x3 comets", cost: new ExpantaNum(3) },
+  { name: "we are getting op way too fast, we should slow down arent we?", info: "x100 cosmic dust, Comets x(log100(CD)^0.4+1)", cost: new ExpantaNum(30) },
+  { name: "dayum dude smth new", info: "Comets x1.1 per bought comet upgrade", cost: new ExpantaNum(195) },
+  { name: "we are getting closer and closerr", info: "x5 cosmic dust per bought space/comet upgrade, x2 comets, Autobuy first 5 cosmic dust upgrades", cost: new ExpantaNum(360) },
+  { name: "we are really close to something cool", info: "Atoms ^(log100(Comets)^0.2), x2 comets, x100 cosmic dust", cost: new ExpantaNum(1750) },
+  { name: "WHAT thats really good jump no way", info: "x1M cosmic dust, x50 comets", cost: new ExpantaNum(50000) },
+  { name: "WHATTTT already exponents and omg what is that? is that new reset layer??? omg buy me to see it btw loll", info: "Cosmic dust ^1.05, Comets ^1.05", cost: new ExpantaNum("4e11") }
 ];
-function cometGain() {
-  if (!cosmicDust.gte(1e12)) return new ExpantaNum(0);
+function cometGainRaw() {
+  if (!cosmicDust.gt(1)) return new ExpantaNum(0);
   var g = cosmicDust.log10().div(12).pow(1.1).mul(0.1);
   if (cometUpg[1]) g = g.mul(10);
   if (cometUpg[2]) g = g.mul(2);
+  if (cometUpg[3]) g = g.mul(3);
+  if (cometUpg[4]) g = g.mul(cosmicDust.gt(1) ? cosmicDust.log10().div(2).pow(0.4).add(1) : 1);
+  if (cometUpg[5]) {
+    var cb2 = 0;
+    for (var cgi2 = 0; cgi2 < cometUpg.length; cgi2++) if (cometUpg[cgi2]) cb2++;
+    g = g.mul(new ExpantaNum(1.1).pow(cb2));
+  }
+  if (cometUpg[6]) g = g.mul(2);
+  if (cometUpg[7]) g = g.mul(2);
+  if (elemBought[39]) g = g.mul(10);
+  if (cometUpg[8]) g = g.mul(50);
+  if (cometUpg[9]) g = g.pow(1.05);
+  if (elemBought[40]) g = g.mul(2);
+  if (elemBought[40] && cosmicDust.gt(1)) g = g.mul(cosmicDust.log10().pow(1));
+  if (elemBought[41]) g = g.mul(40);
+  if (elemBought[42]) g = g.pow(1.2);
+  if (snUpg[1]) g = g.mul(20);
+  if (snUpg[2]) g = g.pow(1.1);
+  if (snMilestones[1]) g = g.pow(1.1);
+  if (clickUpgLvl[1] > 0) g = g.pow(new ExpantaNum(1.01).pow(clickUpgLvl[1]));
+  if (perkLvl[2] > 0) g = g.pow(new ExpantaNum(1.01).pow(perkLvl[2]));
+  if (snMilestones[0]) g = g.mul(2);
   return g;
+}
+function cometGain() {
+  if (!cosmicDust.gte(1e12)) return new ExpantaNum(0);
+  return cometGainRaw();
 }
 function doCometReset() {
   if (!spaceB[14] || cosmicDust.lt(new ExpantaNum(1e12))) return;
@@ -763,13 +889,100 @@ function buyCometUpg(i) {
   save();
 }
 
+var SN_UPGRADES = [
+  { name: "Finally something new", info: "Autobuys all Cosmic Dust upgrades, Generates +1000% Comets/s", cost: new ExpantaNum(1) },
+  { name: "Average boost in gut2", info: "x100 cosmic dust, x20 comets, x1.3 supernova", cost: new ExpantaNum(5) },
+  { name: "simple boost just an arrow", info: "Cosmic dust ^1.1, Comets ^1.1", cost: new ExpantaNum(100) }
+];
+var MILESTONES = [
+  { name: "A brand new universe", req: "Have 1 Supernova total", info: "x4 cosmic dust, x2 comets" },
+  { name: "Big boom moment", req: "Have 10 Supernova total", info: "Cosmic dust ^1.05, Comets ^1.1" },
+  { name: "Clicker time", req: "Have 100 Supernova total", info: "Unlocks the Clicker tab" }
+];
+function snGain() {
+  if (!comets.gte(1e15)) return new ExpantaNum(0);
+  var sg = new ExpantaNum(Math.floor(5 * Math.log10(comets.log10().sub(13).toNumber())));
+  if (snUpg[1]) sg = sg.mul(1.3);
+  if (elemBought[43]) sg = sg.mul(3);
+  if (elemBought[45]) sg = sg.mul(3);
+  if (elemBought[46]) sg = sg.mul(10);
+  if (perkLvl[0] > 0) sg = sg.mul(new ExpantaNum(perkLvl[0] + 1));
+  return sg;
+}
+function doSupernovaReset() {
+  var g = snGain();
+  if (g.lte(0)) return;
+  supernova = supernova.add(g);
+  snTotal = snTotal.add(g);
+  cosmicDust = new ExpantaNum(0);
+  comets = new ExpantaNum(0);
+  for (var si = 0; si < spaceB.length; si++) spaceB[si] = false;
+  for (var s2 = 0; s2 < spaceLvl.length; s2++) spaceLvl[s2] = 0;
+  for (var ci = 0; ci < cometUpg.length; ci++) cometUpg[ci] = false;
+  save();
+}
+function buySupernovaUpg(i) {
+  var u = SN_UPGRADES[i - 1];
+  if (!u || snUpg[i - 1]) return;
+  if (supernova.lt(u.cost)) return;
+  supernova = supernova.sub(u.cost);
+  snUpg[i - 1] = true;
+  save();
+}
+function clickerUpgCost(k) {
+  if (k === 0) return new ExpantaNum(10);
+  if (k === 1) return new ExpantaNum(16);
+  var a = new ExpantaNum(10);
+  var b = new ExpantaNum(16);
+  for (var cup = 2; cup <= k; cup++) {
+    var cqp = a.add(b).add(3);
+    a = b;
+    b = cqp;
+  }
+  return b;
+}
+function levelUpClicker() {
+  var c = clickerUpgCost(clickerLvl);
+  if (clicks.lt(c)) return;
+  clicks = clicks.sub(c);
+  clickerLvl++;
+  perks++;
+  save();
+}
+function buyPerk(i) {
+  if (perks <= 0) return;
+  if (perkLvl[i - 1] >= PERK_MAX[i - 1]) return;
+  perks--;
+  perkLvl[i - 1]++;
+  save();
+}
+function clickUpgCost(i) {
+  var bc = i === 2 ? 100 : 10;
+  return new ExpantaNum(bc).mul(new ExpantaNum(5).pow(clickUpgLvl[i - 1]));
+}
+function buyClickerUpg(i) {
+  var c = clickUpgCost(i);
+  if (clicks.lt(c)) return;
+  clicks = clicks.sub(c);
+  clickUpgLvl[i - 1]++;
+  save();
+}
+function buyTycoonUpg(i) {
+  if (tyUpgs[i - 1]) return;
+  if (money.lt(10)) return;
+  money = money.sub(10);
+  tyUpgs[i - 1] = true;
+  save();
+}
+
 function buyElement(i) {
   if (elemBought[i - 1]) return;
-  if (i !== 1 && i !== 2 && i !== 3 && i !== 4 && i !== 5 && i !== 6 && i !== 7 && i !== 8 && i !== 9 && i !== 10 && i !== 11 && i !== 12 && i !== 13 && i !== 14 && i !== 15 && i !== 16 && i !== 17 && i !== 18 && i !== 19 && i !== 20 && i !== 21 && i !== 22 && i !== 23 && i !== 24 && i !== 25 && i !== 26 && i !== 27 && i !== 28 && i !== 29 && i !== 30 && i !== 31 && i !== 32 && i !== 33 && i !== 34 && i !== 35 && i !== 36 && i !== 37 && i !== 38 && i !== 39) return;
+  if (i !== 1 && i !== 2 && i !== 3 && i !== 4 && i !== 5 && i !== 6 && i !== 7 && i !== 8 && i !== 9 && i !== 10 && i !== 11 && i !== 12 && i !== 13 && i !== 14 && i !== 15 && i !== 16 && i !== 17 && i !== 18 && i !== 19 && i !== 20 && i !== 21 && i !== 22 && i !== 23 && i !== 24 && i !== 25 && i !== 26 && i !== 27 && i !== 28 && i !== 29 && i !== 30 && i !== 31 && i !== 32 && i !== 33 && i !== 34 && i !== 35 && i !== 36 && i !== 37 && i !== 38 && i !== 39 && i !== 40 && i !== 41 && i !== 42 && i !== 43 && i !== 44 && i !== 45 && i !== 46 && i !== 47 && i !== 48) return;
   if (atoms.lt(elemCostNum(i))) return;
   atoms = atoms.sub(elemCostNum(i));
   elemBought[i - 1] = true;
   if (i === 1 && !hBonus) { for (var vi = 0; vi < lv.length; vi++) lv[vi] += 20; hBonus = true; }
+  if (i === 48) money = money.add(10);
 }
 
 function activateChallenge(c) {
@@ -840,7 +1053,7 @@ document.getElementById("hardreset").onclick = function () {
 };
 
 document.getElementById("export").onclick = function () {
-  document.getElementById("savebox").value = encodeSave({ v: voidAmt.toString(), k: quarks.toString(), a: atoms.toString(), ar: atomResets, l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6], s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18], c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: red.toString(), gr: green.toString(), bl: blue.toString(), tp: ttparts.toString(), tm: timeBought, cdst: cosmicDust.toString(), sb: spaceB, sl: spaceLvl, cm: comets.toString(), cu: cometUpg });
+  document.getElementById("savebox").value = encodeSave({ v: voidAmt.toString(), k: quarks.toString(), a: atoms.toString(), ar: atomResets, l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6], s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18], c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: red.toString(), gr: green.toString(), bl: blue.toString(), tp: ttparts.toString(), tm: timeBought, cdst: cosmicDust.toString(), sb: spaceB, sl: spaceLvl, cm: comets.toString(), cu: cometUpg, sn: supernova.toString(), snT: snTotal.toString(), snm: snMilestones, snu: snUpg, cl: sane(clicks).toString(), cll: clickerLvl, clk: perks, clv: perkLvl, clu: clickUpgLvl, mo: sane(money).toString(), ty: tyUpgs });
   document.getElementById("savepop-title").textContent = "Your save (copy this):";
   document.getElementById("savepopup").style.display = "";
   var box = document.getElementById("savebox");
@@ -904,6 +1117,17 @@ document.getElementById("savepop-ok").onclick = function () {
     if (d.sl) for (var sli = 0; sli < spaceLvl.length; sli++) spaceLvl[sli] = d.sl[sli] || 0;
     comets = d.cm !== undefined ? sane(new ExpantaNum(d.cm)) : new ExpantaNum(0);
     if (d.cu) for (var cui = 0; cui < cometUpg.length; cui++) cometUpg[cui] = !!d.cu[cui];
+    supernova = d.sn !== undefined ? sane(new ExpantaNum(d.sn)) : new ExpantaNum(0);
+    snTotal = d.snT !== undefined ? sane(new ExpantaNum(d.snT)) : new ExpantaNum(0);
+    if (d.snm) for (var smi = 0; smi < snMilestones.length; smi++) snMilestones[smi] = !!d.snm[smi];
+    if (d.snu) for (var siu = 0; siu < snUpg.length; siu++) snUpg[siu] = !!d.snu[siu];
+    clicks = d.cl !== undefined ? sane(new ExpantaNum(d.cl)) : new ExpantaNum(0);
+    clickerLvl = d.cll || 0;
+    perks = d.clk || 0;
+    if (d.clv) for (var ckl = 0; ckl < perkLvl.length; ckl++) perkLvl[ckl] = d.clv[ckl] || 0;
+    if (d.clu) for (var cku2 = 0; cku2 < clickUpgLvl.length; cku2++) clickUpgLvl[cku2] = d.clu[cku2] || 0;
+    money = d.mo !== undefined ? sane(new ExpantaNum(d.mo)) : new ExpantaNum(0);
+    if (d.ty) for (var tyi = 0; tyi < tyUpgs.length; tyi++) tyUpgs[tyi] = !!d.ty[tyi];
     if (elemBought[0] && !hBonus) {
       for (var vi = 0; vi < lv.length; vi++) lv[vi] += 20;
       hBonus = true;
@@ -926,6 +1150,9 @@ function showTab(t) {
   document.getElementById("rlist").style.display = t === "rgb" ? "" : "none";
   document.getElementById("ttlist").style.display = t === "tt" ? "" : "none";
   document.getElementById("spalist").style.display = t === "space" ? "" : "none";
+  document.getElementById("mlist").style.display = t === "miles" ? "" : "none";
+  document.getElementById("clicklist").style.display = t === "clicker" ? "" : "none";
+  document.getElementById("tylist").style.display = t === "tycoon" ? "" : "none";
   if (t === "elements") document.body.style.background = "darkslategray";
   else if (t === "quarks") document.body.style.background = "darkslateblue";
   else if (t === "challenges") document.body.style.background = "darkorchid";
@@ -933,6 +1160,8 @@ function showTab(t) {
   else if (t === "rgb") document.body.style.background = "darkmagenta";
   else if (t === "tt") document.body.style.background = "darkcyan";
   else if (t === "space") document.body.style.background = "midnightblue";
+  else if (t === "clicker") document.body.style.background = "darkslategray";
+  else if (t === "tycoon") document.body.style.background = "darkgoldenrod";
   else document.body.style.background = "darkblue";
 }
 
@@ -966,6 +1195,40 @@ document.getElementById("ttab").onclick = function () {
 
 document.getElementById("spab").onclick = function () {
   showTab(curTab === "space" ? "main" : "space");
+};
+
+document.getElementById("mtab").onclick = function () {
+  showTab(curTab === "miles" ? "main" : "miles");
+};
+
+document.getElementById("clicktab").onclick = function () {
+  showTab(curTab === "clicker" ? "main" : "clicker");
+};
+
+document.getElementById("tytab").onclick = function () {
+  if (elemBought[47]) showTab(curTab === "tycoon" ? "main" : "tycoon");
+};
+
+document.getElementById("clickbtn").onclick = function () {
+  clicks = clicks.add(new ExpantaNum(1).add(perkLvl[1]).mul(elemBought[44] ? 100 : 1).mul(elemBought[45] ? 5000 : 1).mul(elemBought[46] ? 1000000 : 1));
+};
+document.getElementById("pk1").onclick = function () {
+  buyPerk(1);
+};
+document.getElementById("pk2").onclick = function () {
+  buyPerk(2);
+};
+document.getElementById("pk3").onclick = function () {
+  buyPerk(3);
+};
+document.getElementById("cu1").onclick = function () {
+  buyClickerUpg(1);
+};
+document.getElementById("cu2").onclick = function () {
+  buyClickerUpg(2);
+};
+document.getElementById("ty1").onclick = function () {
+  buyTycoonUpg(1);
 };
 
 document.getElementById("atomreset").onclick = doAtomReset;
@@ -1069,7 +1332,34 @@ function loop(now) {
   }
   if (elemBought[1]) quarks = quarks.add(quarkGain().mul(10).mul(dt));
   if (elemBought[17]) atoms = atoms.add(atomGain().mul(100).mul(dt));
-  if (spaceB[1]) cosmicDust = cosmicDust.add(new ExpantaNum(cosmicDustRate()).mul(dt));
+  if (spaceB[1]) cosmicDust = cosmicDust.add(cosmicDustRate().mul(dt));
+  if (cometUpg[6]) {
+    for (var sba = 1; sba <= 5; sba++) {
+      if (!spaceB[sba]) buySpace(sba);
+    }
+  }
+  if (snUpg[0]) {
+    var snbought = true;
+    while (snbought) {
+      snbought = false;
+      for (var sna = 1; sna <= 14; sna++) {
+        var snsu = SPACE_UPGRADES[sna - 1];
+        if ((spaceLvl[sna] || 0) < (snsu.maxLvl || 1) && cosmicDust.gte(snsu.cost)) {
+          buySpace(sna);
+          snbought = true;
+        }
+      }
+    }
+    comets = comets.add(cometGainRaw().mul(10).mul(dt));
+  }
+  if (!snMilestones[0] && snTotal.gte(1)) snMilestones[0] = true;
+  if (!snMilestones[1] && snTotal.gte(10)) snMilestones[1] = true;
+  if (!snMilestones[2] && snTotal.gte(100)) snMilestones[2] = true;
+  if (snMilestones[2]) while (clicks.gte(clickerUpgCost(clickerLvl))) {
+    clickerLvl++;
+    perks++;
+  }
+  if (tyUpgs[0]) money = money.add(dt);
   if (elemBought[24]) buyInfMax();
   if (elemBought[26]) {
     red = red.mul(new ExpantaNum(10).pow(dt)).min(rgbCap());
@@ -1239,7 +1529,7 @@ function loop(now) {
         if (t && t.id) buySpace(parseInt(t.id.slice(3), 10));
       };
     }
-    document.getElementById("sdust").textContent = "Cosmic Dust: " + fmt(cosmicDust) + (spaceB[1] ? " (+" + cosmicDustRate() + "/s)" : " (no generation - buy \"A new beginning\" to start)");
+    document.getElementById("sdust").textContent = "Cosmic Dust: " + fmt(cosmicDust) + (spaceB[1] ? " (+" + fmt(cosmicDustRate()) + "/s)" : " (no generation - buy \"A new beginning\" to start)");
     var tree = document.getElementById("stree");
     var levels = spaceTreeLevels();
     var sig = "";
@@ -1325,19 +1615,12 @@ function loop(now) {
     csec = document.getElementById("csec");
     if (!csec.dataset.init) {
       csec.dataset.init = "1";
-      var ch = "<div>Comets: <span id='camt'></span></div>" +
+      csec.innerHTML = "<div>Comets: <span id='camt'></span></div>" +
         "<div style='display:flex;justify-content:center'><button id='creset' style='width:240px;height:88px;border:2px solid #fff;color:#fff;cursor:pointer;font-family:inherit;padding:6px'>" +
         "<div style='font-size:15px;font-weight:bold'>Comet Reset</div>" +
         "<div style='font-size:11px;margin-top:3px'>Gain <span id='cgain'></span> Comets</div>" +
-        "<div style='font-size:12px;margin-top:5px'>Requires 1T Cosmic Dust</div></button></div>";
-      for (var cu2 = 0; cu2 < COMET_UPGRADES.length; cu2++) {
-        var cu = COMET_UPGRADES[cu2];
-        ch += "<div style='display:flex;justify-content:center'><button id='cub" + (cu2 + 1) + "' style='width:240px;height:88px;border:2px solid #fff;color:#fff;cursor:pointer;font-family:inherit;padding:6px'>" +
-          "<div style='font-size:15px;font-weight:bold'>" + cu.name + "</div>" +
-          "<div style='font-size:11px;margin-top:3px'>" + cu.info + "</div>" +
-          "<div style='font-size:12px;margin-top:5px'>Cost: " + fmt(cu.cost) + " Comet</div></button></div>";
-      }
-      csec.innerHTML = ch;
+        "<div style='font-size:12px;margin-top:5px'>Requires 1T Cosmic Dust</div></button></div>" +
+        "<div id='cuplist'></div>";
       csec.onclick = function (e) {
         var t = e.target;
         while (t && t !== csec && t.id !== "creset" && !/^cub\d+$/.test(t.id)) t = t.parentNode;
@@ -1350,11 +1633,144 @@ function loop(now) {
     var cr = document.getElementById("creset");
     if (cosmicDust.gte(new ExpantaNum(1e12))) { cr.disabled = false; cr.style.background = "#8b8b00"; }
     else { cr.disabled = true; cr.style.background = "#b03030"; }
-    for (var cu3 = 0; cu3 < COMET_UPGRADES.length; cu3++) {
-      var cb = document.getElementById("cub" + (cu3 + 1));
-      if (cometUpg[cu3]) cb.style.background = "#006400";
-      else cb.style.background = comets.gte(COMET_UPGRADES[cu3].cost) ? "#8b8b00" : "#b03030";
+    var cuplist = document.getElementById("cuplist");
+    var btnSig = (cometUpg[2] ? "1" : "0") + (cometUpg[3] ? "1" : "0") + (cometUpg[4] ? "1" : "0") + (cometUpg[5] ? "1" : "0") + (cometUpg[6] ? "1" : "0") + (cometUpg[7] ? "1" : "0") + (cometUpg[8] ? "1" : "0") + "|" + COMET_UPGRADES.length;
+    if (cuplist.dataset.sig !== btnSig) {
+      cuplist.dataset.sig = btnSig;
+      var uch = "";
+      for (var cui2 = 0; cui2 < COMET_UPGRADES.length; cui2++) {
+        if (cui2 === 3 && !cometUpg[2]) continue;
+        if (cui2 === 4 && !cometUpg[3]) continue;
+        if (cui2 === 5 && !cometUpg[4]) continue;
+        if (cui2 === 6 && !cometUpg[5]) continue;
+        if (cui2 === 7 && !cometUpg[6]) continue;
+        if (cui2 === 8 && !cometUpg[7]) continue;
+        if (cui2 === 9 && !cometUpg[8]) continue;
+        var cu2 = COMET_UPGRADES[cui2];
+        uch += "<div style='display:flex;justify-content:center'><button id='cub" + (cui2 + 1) + "' style='width:240px;height:88px;border:2px solid #fff;color:#fff;cursor:pointer;font-family:inherit;padding:6px'>" +
+          "<div style='font-size:15px;font-weight:bold'>" + cu2.name + "</div>" +
+          "<div style='font-size:11px;margin-top:3px'>" + cu2.info + "</div>" +
+          "<div style='font-size:12px;margin-top:5px'>Cost: " + fmt(cu2.cost) + " Comet</div></button></div>";
+      }
+      cuplist.innerHTML = uch;
     }
+    for (var cui3 = 0; cui3 < COMET_UPGRADES.length; cui3++) {
+      if (cui3 === 3 && !cometUpg[2]) continue;
+      if (cui3 === 4 && !cometUpg[3]) continue;
+      if (cui3 === 5 && !cometUpg[4]) continue;
+      if (cui3 === 6 && !cometUpg[5]) continue;
+      if (cui3 === 7 && !cometUpg[6]) continue;
+      if (cui3 === 8 && !cometUpg[7]) continue;
+      if (cui3 === 9 && !cometUpg[8]) continue;
+      var cb = document.getElementById("cub" + (cui3 + 1));
+      if (cometUpg[cui3]) cb.style.background = "#006400";
+      else cb.style.background = comets.gte(COMET_UPGRADES[cui3].cost) ? "#8b8b00" : "#b03030";
+    }
+  }
+
+  if (curTab === "space" && (cometUpg[9] || snTotal.gt(0))) {
+    var spl3 = document.getElementById("spalist");
+    var snsec = document.getElementById("snsec");
+    if (!snsec) {
+      var d3 = document.createElement("div");
+      d3.id = "snsec";
+      spl3.appendChild(d3);
+    }
+    snsec = document.getElementById("snsec");
+    if (!snsec.dataset.init) {
+      snsec.dataset.init = "1";
+      snsec.innerHTML = "<div style='margin-top:16px;font-size:17px;font-weight:bold'>Supernovas: <span id='snamt'></span></div>" +
+        "<div style='display:flex;justify-content:center'><button id='snreset' style='width:240px;height:88px;border:2px solid #fff;color:#fff;cursor:pointer;font-family:inherit;padding:6px'>" +
+        "<div style='font-size:15px;font-weight:bold'>Supernova Reset</div>" +
+        "<div style='font-size:11px;margin-top:3px'>Gain <span id='sncgain'></span> Supernovas</div>" +
+        "<div style='font-size:12px;margin-top:5px'>Requires 1Qa Comets</div></button></div>";
+      snsec.onclick = function (e) {
+        var t = e.target;
+        while (t && t !== snsec && t.id !== "snreset") t = t.parentNode;
+        if (t && t.id === "snreset") doSupernovaReset();
+      };
+    }
+    document.getElementById("snamt").textContent = fmt(supernova);
+    document.getElementById("sncgain").textContent = fmt(snGain());
+    var snr = document.getElementById("snreset");
+    if (comets.gte(new ExpantaNum(1e15))) { snr.disabled = false; snr.style.background = "#8b8b00"; }
+    else { snr.disabled = true; snr.style.background = "#b03030"; }
+  }
+
+  if (curTab === "miles" && snTotal.gt(0)) {
+    var mlist = document.getElementById("mlist");
+    if (!mlist.dataset.init) {
+      mlist.dataset.init = "1";
+      var mh = "<div style='font-size:20px;margin-bottom:10px'>Milestones</div>";
+      for (var mi = 0; mi < MILESTONES.length; mi++) {
+        mh += "<div style='display:flex;justify-content:center'><button id='mil" + (mi + 1) + "' style='width:420px;min-height:72px;border:2px solid #fff;color:#fff;cursor:default;font-family:inherit;padding:6px'>" +
+          "<div style='font-size:15px;font-weight:bold'>" + MILESTONES[mi].name + "</div>" +
+          "<div style='font-size:11px;margin-top:3px'>" + MILESTONES[mi].req + "</div>" +
+          "<div style='font-size:12px;margin-top:5px'>" + MILESTONES[mi].info + "</div></button></div>";
+      }
+      mh += "<div style='font-size:17px;margin-top:16px;font-weight:bold'>Supernova Upgrades</div>";
+      for (var si2 = 0; si2 < SN_UPGRADES.length; si2++) {
+        var suN = SN_UPGRADES[si2];
+        if (si2 === 1 && !elemBought[43]) continue;
+        if (si2 === 2 && !snUpg[1]) continue;
+        mh += "<div style='display:flex;justify-content:center'><button id='snub" + (si2 + 1) + "' style='width:240px;height:88px;border:2px solid #fff;color:#fff;cursor:pointer;font-family:inherit;padding:6px'>" +
+          "<div style='font-size:15px;font-weight:bold'>" + suN.name + "</div>" +
+          "<div style='font-size:11px;margin-top:3px'>" + suN.info + "</div>" +
+          "<div style='font-size:12px;margin-top:5px'>Cost: " + fmt(suN.cost) + " Supernova</div></button></div>";
+      }
+      mlist.innerHTML = mh;
+      mlist.onclick = function (e) {
+        var t = e.target;
+        while (t && t !== mlist && t.id !== "mil1" && !/^snub\d+$/.test(t.id)) t = t.parentNode;
+        if (t && /^snub\d+$/.test(t.id)) buySupernovaUpg(parseInt(t.id.slice(4), 10));
+      };
+    }
+    for (var mi2 = 0; mi2 < MILESTONES.length; mi2++) {
+      var mb = document.getElementById("mil" + (mi2 + 1));
+      if (snMilestones[mi2]) mb.style.background = "#006400";
+      else mb.style.background = "#8b8b00";
+    }
+    for (var si3 = 0; si3 < SN_UPGRADES.length; si3++) {
+      var snb = document.getElementById("snub" + (si3 + 1));
+      if (!snb) continue;
+      if (snUpg[si3]) snb.style.background = "#006400";
+      else snb.style.background = supernova.gte(SN_UPGRADES[si3].cost) ? "#8b8b00" : "#b03030";
+    }
+  }
+
+  if (curTab === "clicker" && snMilestones[2]) {
+    document.getElementById("clickamt").textContent = "Clicks: " + fmt(clicks);
+    document.getElementById("clvltext").textContent = clickerLvl;
+    document.getElementById("perkamt").textContent = perks;
+    var upc = clickerUpgCost(clickerLvl);
+    var pct = clicks.div(upc).mul(100).min(100).toNumber();
+    document.getElementById("curlvlfill").style.width = pct + "%";
+    document.getElementById("curlvltext").textContent = fmt(upc) + " Clicks to Level " + (clickerLvl + 1);
+    var perkNames = ["Supernova Boost", "Click Boost", "Dust & Comet Boost"];
+    var perkInfos = ["Supernovas x(level+1) (max 10)", "Clicks x(level+1) (max 25)", "Cosmic dust & Comets ^1.01 per level (max 100)"];
+    for (var pk = 1; pk <= 3; pk++) {
+      var pkb = document.getElementById("pk" + pk);
+      var pkm = PERK_MAX[pk - 1];
+      pkb.textContent = perkNames[pk - 1] + " (Lv " + perkLvl[pk - 1] + "/" + pkm + "): " + perkInfos[pk - 1] + "\nCost: 1 Perk";
+      if (perks <= 0 || perkLvl[pk - 1] >= pkm) { pkb.disabled = true; pkb.style.background = "#b03030"; }
+      else { pkb.disabled = false; pkb.style.background = "#8b8b00"; }
+    }
+    for (var cku3 = 1; cku3 <= 2; cku3++) {
+      var cuk = document.getElementById("cu" + cku3);
+      var cuc = clickUpgCost(cku3);
+      cuk.textContent = (cku3 === 1 ? "Clicker Boost I" : "Clicker Boost II") + " (Lv " + clickUpgLvl[cku3 - 1] + "): Cosmic dust ^1.01/comets ^1.01 per level\nCost: " + fmt(cuc) + " Clicks";
+      if (clicks.gte(cuc)) { cuk.disabled = false; cuk.style.background = "#8b8b00"; }
+      else { cuk.disabled = true; cuk.style.background = "#b03030"; }
+    }
+  }
+
+  if (curTab === "tycoon" && elemBought[47]) {
+    document.getElementById("moneyamt").textContent = "Money: " + fmt(money);
+    var tyb = document.getElementById("ty1");
+    tyb.textContent = "Tycoon Upgrade I" + (tyUpgs[0] ? " (BOUGHT)" : "") + ": Generates 1 money per second\nCost: 10 Money";
+    if (tyUpgs[0]) { tyb.disabled = true; tyb.style.background = "#006400"; }
+    else if (money.gte(10)) { tyb.disabled = false; tyb.style.background = "#8b8b00"; }
+    else { tyb.disabled = true; tyb.style.background = "#b03030"; }
   }
 
   if (curTab === "elements" && atomResets > 0) {
@@ -1430,6 +1846,8 @@ function loop(now) {
   document.getElementById("rtab").style.display = elemBought[26] ? "" : "none";
   document.getElementById("ttab").style.display = elemBought[31] ? "" : "none";
   document.getElementById("spab").style.display = elemBought[36] ? "" : "none";
+  document.getElementById("mtab").style.display = snTotal.gt(0) ? "" : "none";
+  document.getElementById("clicktab").style.display = snMilestones[2] ? "" : "none";
 
   requestAnimationFrame(loop);
 }
