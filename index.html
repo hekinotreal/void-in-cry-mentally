@@ -99,6 +99,7 @@ body { background: darkblue; color: white; }
 <br>
 <button id="ty1">Tycoon Upgrade I</button>
 <button id="ty2">Tycoon Upgrade II</button>
+<button id="ty3">Tycoon Upgrade III</button>
 </div>
 <div id="einfo" style="position:fixed;display:none;background:#000;color:#fff;padding:6px 10px;z-index:100;pointer-events:none;white-space:pre;"></div>
 <script>
@@ -497,6 +498,9 @@ function atomGain() {
   if (spaceLvl[10] > 0) g = g.pow(new ExpantaNum(1.005).pow(spaceLvl[10]));
   if (spaceB[11] && cosmicDust.gt(1)) g = g.pow(cosmicDust.log10());
   if (cometUpg[7]) g = g.pow(comets.gte(100) ? comets.log10().div(2).pow(0.2) : new ExpantaNum(1));
+  if (tyUpgs[2]) g = g.pow(1.1);
+  if (elemBought[50]) g = g.pow(2);
+  if (elemBought[51]) g = g.pow(2);
   return g.floor().max(new ExpantaNum(1));
 }
 
@@ -566,6 +570,11 @@ function elemCostNum(i) {
   if (i === 46) return new ExpantaNum("1e4.6e9");
   if (i === 47) return new ExpantaNum("1e5e9");
   if (i === 48) return new ExpantaNum("1e9.2e9");
+  if (i === 49) return new ExpantaNum("1e16.5e9");
+  if (i === 50) return new ExpantaNum("1e37e9");
+  if (i === 51) return new ExpantaNum("1e950e9");
+  if (i === 52) return new ExpantaNum("1e39e12");
+  if (i === 53) return new ExpantaNum("1e6e15");
   if (!INF_COST) INF_COST = new ExpantaNum(Infinity);
   return INF_COST;
 }
@@ -619,12 +628,17 @@ function elemCostStr(i) {
   if (i === 46) return "1e4.60B Atoms";
   if (i === 47) return "1e5B Atoms";
   if (i === 48) return "1e9.2B Atoms";
+  if (i === 49) return "1e16.5B Atoms";
+  if (i === 50) return "1e37B Atoms";
+  if (i === 51) return "1e950B Atoms";
+  if (i === 52) return "1e39T Atoms";
+  if (i === 53) return "1e6Qa Atoms";
   return "1J10";
 }
 var ELEM_EFFECT = [
   "x2 Atoms, Autobuys Void upgrades, x2 Void, x2 Quarks, +20 levels to all Void upgrades",
   "x10 Quarks, Void ^1.1, x1.5 Atoms, +1000% Quarks on reset per second", "Autobuys Quark upgrades, x3 Atoms, Void ^5, x10 Quarks",   "Void ^2, x3 Atoms, Quarks ^2", "Void ^5, Quarks ^5, x50 Atoms",   "Quarks ^2, Void ^2, x100 Atoms, Uncap Quarks", "Void ^25, Quarks ^25, Atoms ^1.5", "x10 Atoms, Quarks ^3, Void ^3", "Void ^50, Quarks ^50, x3 Atoms", "Void ^50, Quarks ^50", "Unlocks the Challenges tab", "^100 Void", "^100 Quarks", "x100 Atoms", "Unlocks the Infinite tab", "Infinite Upgrade cost x25 -> x10", "x100 Atoms, Infinite Upgrade cost x10 -> x5", "Atoms +10000%/s, x100 Atoms", "x1k Atoms, ^100 Quarks, ^10000 Void", "x10K Atoms, Infinite Upgrade cost x5 -> x4", "x100K Atoms, Infinite Upgrade cost x4 -> x3", "Infinite Upgrade max level +100", "x10K Atoms, ^100 Void, ^100 Quarks", "^100M Void, ^100M Quarks, x100 Atoms", "x100 Atoms, Infinite upgrade max +500, Autobuys Infinite upgrade", "x10K Atoms, ^100B Void, ^100B Quarks", "Unlocks the RGB tab", "RGB ^1.05/s, RGB cap 1e3003", "RGB ^1.3/s, RGB cap 1e3M", "RGB ^100/s, RGB cap 1e10DTg", "Infinite upgrade max +9300", "Unlocks the Time Travelling tab", "Atoms ^1.05", "Quarks ^1e100, Void ^1e100", "Infinite upgrade max +90000, Infinite upgrade cost x3 -> x4.5", "Unlocks Time in Time Travelling", "Unlocks the Space tab", "Cosmic dust rate x (log10(cosmic dust))^1.2", "x10 cosmic dust", "x100 cosmic dust, x10 comets", "x1B cosmic dust, x2 comets, Cosmic dust & Comets x(log10(CD)^1)", "Cosmic dust ^1.05, x40 comets", "Cosmic dust ^1.1, Comets ^1.2",
-  "x3 Supernovas, Unlocks a new Supernova Upgrade", "x100 Clicks", "x5000 Clicks, x3 Supernovas", "x1M Clicks, x10 Supernovas", "Unlocks the Tycoon tab", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon..."];
+  "x3 Supernovas, Unlocks a new Supernova Upgrade", "x100 Clicks", "x5000 Clicks, x3 Supernovas", "x1M Clicks, x10 Supernovas", "Unlocks the Tycoon tab", "Autobuys TT parts, Autoclicks, Clicks ^1.5, Money ^2, Cosmic dust ^1.1, Comets ^1.2, Supernova ^1.3", "Money ^2, Clicks ^1.5, Cosmic dust ^1.4, Comets ^1.5, Supernova ^1.6", "Atoms ^2, Space currencies ^2, Clicks ^2, Money ^2, Autobuys clicker upgrades", "Atoms ^2, Space ^2, Clicks ^2, Money ^2, Autobuys comet upgrades, +1000% Supernova/s", "RGB cap 1e1e1e100, RGB power ^1e1e100", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon..."];
 
 function bulkAmount() {
   if (quarkUpg[7]) return 250;
@@ -673,6 +687,7 @@ function infMaxLvl() {
   return new ExpantaNum(100).add(elemBought[21] ? 100 : 0).add(elemBought[24] ? 500 : 0).add(elemBought[30] ? 9300 : 0).add(elemBought[34] ? 90000 : 0);
 }
 function rgbCap() {
+  if (elemBought[52]) return new ExpantaNum(10).pow(new ExpantaNum(10).pow(new ExpantaNum(1e100)));
   if (elemBought[29]) return new ExpantaNum(10).pow(new ExpantaNum(1e100));
   if (elemBought[28]) return new ExpantaNum("1e3000000");
   return elemBought[27] ? new ExpantaNum("1e3003") : new ExpantaNum(VOID_CAP);
@@ -815,6 +830,12 @@ function cosmicDustRate() {
   if (perkLvl[2] > 0) r = r.pow(new ExpantaNum(1.01).pow(perkLvl[2]));
   if (elemBought[37] && cosmicDust.gt(1)) r = r.mul(cosmicDust.log10().pow(1.2));
   if (tyUpgs[1]) r = r.pow(1.1);
+  if (tyUpgs[2]) r = r.pow(1.2);
+  if (elemBought[48]) r = r.pow(1.1);
+  if (elemBought[49]) r = r.pow(1.4);
+  if (snUpg[3]) r = r.pow(2);
+  if (elemBought[50]) r = r.pow(2);
+  if (elemBought[51]) r = r.pow(2);
   return r;
 }
 function buySpace(i) {
@@ -868,6 +889,11 @@ function cometGainRaw() {
   if (clickUpgLvl[1] > 0) g = g.pow(new ExpantaNum(1.01).pow(clickUpgLvl[1]));
   if (perkLvl[2] > 0) g = g.pow(new ExpantaNum(1.01).pow(perkLvl[2]));
   if (snMilestones[0]) g = g.mul(2);
+  if (tyUpgs[2]) g = g.pow(1.2);
+  if (elemBought[48]) g = g.pow(1.2);
+  if (elemBought[49]) g = g.pow(1.5);
+  if (elemBought[50]) g = g.pow(2);
+  if (elemBought[51]) g = g.pow(2);
   return g;
 }
 function cometGain() {
@@ -894,22 +920,28 @@ function buyCometUpg(i) {
 var SN_UPGRADES = [
   { name: "Finally something new", info: "Autobuys all Cosmic Dust upgrades, Generates +1000% Comets/s", cost: new ExpantaNum(1) },
   { name: "Average boost in gut2", info: "x100 cosmic dust, x20 comets, x1.3 supernova", cost: new ExpantaNum(5) },
-  { name: "simple boost just an arrow", info: "Cosmic dust ^1.1, Comets ^1.1", cost: new ExpantaNum(100) }
+  { name: "simple boost just an arrow", info: "Cosmic dust ^1.1, Comets ^1.1", cost: new ExpantaNum(100) },
+  { name: "we are getting more money we are richer than elon musk", info: "Money ^2, Clicks ^2, Cosmic dust ^2, Money ^2", cost: new ExpantaNum("5e7") }
 ];
 var MILESTONES = [
   { name: "A brand new universe", req: "Have 1 Supernova total", info: "x4 cosmic dust, x2 comets" },
   { name: "Big boom moment", req: "Have 10 Supernova total", info: "Cosmic dust ^1.05, Comets ^1.1" },
   { name: "Clicker time", req: "Have 100 Supernova total", info: "Unlocks the Clicker tab" }
 ];
-function snGain() {
+function snGainRaw() {
   if (!comets.gte(1e15)) return new ExpantaNum(0);
-  var sg = new ExpantaNum(Math.floor(5 * Math.log10(comets.log10().sub(13).toNumber())));
+  var sg = new ExpantaNum(5 * Math.log10(comets.log10().sub(13).toNumber()));
   if (snUpg[1]) sg = sg.mul(1.3);
   if (elemBought[43]) sg = sg.mul(3);
   if (elemBought[45]) sg = sg.mul(3);
   if (elemBought[46]) sg = sg.mul(10);
+  if (elemBought[48]) sg = sg.pow(1.3);
+  if (elemBought[49]) sg = sg.pow(1.6);
   if (perkLvl[0] > 0) sg = sg.mul(new ExpantaNum(perkLvl[0] + 1));
   return sg;
+}
+function snGain() {
+  return snGainRaw().floor();
 }
 function doSupernovaReset() {
   var g = snGain();
@@ -972,15 +1004,17 @@ function buyClickerUpg(i) {
 function buyTycoonUpg(i) {
   if (tyUpgs[i - 1]) return;
   if (i === 2 && !tyUpgs[0]) return;
-  if (money.lt(10)) return;
-  money = money.sub(10);
+  if (i === 3 && !tyUpgs[1]) return;
+  var tc = i === 3 ? new ExpantaNum(500) : new ExpantaNum(10);
+  if (money.lt(tc)) return;
+  money = money.sub(tc);
   tyUpgs[i - 1] = true;
   save();
 }
 
 function buyElement(i) {
   if (elemBought[i - 1]) return;
-  if (i !== 1 && i !== 2 && i !== 3 && i !== 4 && i !== 5 && i !== 6 && i !== 7 && i !== 8 && i !== 9 && i !== 10 && i !== 11 && i !== 12 && i !== 13 && i !== 14 && i !== 15 && i !== 16 && i !== 17 && i !== 18 && i !== 19 && i !== 20 && i !== 21 && i !== 22 && i !== 23 && i !== 24 && i !== 25 && i !== 26 && i !== 27 && i !== 28 && i !== 29 && i !== 30 && i !== 31 && i !== 32 && i !== 33 && i !== 34 && i !== 35 && i !== 36 && i !== 37 && i !== 38 && i !== 39 && i !== 40 && i !== 41 && i !== 42 && i !== 43 && i !== 44 && i !== 45 && i !== 46 && i !== 47 && i !== 48) return;
+  if (i !== 1 && i !== 2 && i !== 3 && i !== 4 && i !== 5 && i !== 6 && i !== 7 && i !== 8 && i !== 9 && i !== 10 && i !== 11 && i !== 12 && i !== 13 && i !== 14 && i !== 15 && i !== 16 && i !== 17 && i !== 18 && i !== 19 && i !== 20 && i !== 21 && i !== 22 && i !== 23 && i !== 24 && i !== 25 && i !== 26 && i !== 27 && i !== 28 && i !== 29 && i !== 30 && i !== 31 && i !== 32 && i !== 33 && i !== 34 && i !== 35 && i !== 36 && i !== 37 && i !== 38 && i !== 39 && i !== 40 && i !== 41 && i !== 42 && i !== 43 && i !== 44 && i !== 45 && i !== 46 && i !== 47 && i !== 48 && i !== 49 && i !== 50 && i !== 51 && i !== 52 && i !== 53) return;
   if (atoms.lt(elemCostNum(i))) return;
   atoms = atoms.sub(elemCostNum(i));
   elemBought[i - 1] = true;
@@ -1213,8 +1247,17 @@ document.getElementById("tytab").onclick = function () {
 };
 
 document.getElementById("clickbtn").onclick = function () {
-  clicks = clicks.add(new ExpantaNum(1).add(perkLvl[1]).mul(elemBought[44] ? 100 : 1).mul(elemBought[45] ? 5000 : 1).mul(elemBought[46] ? 1000000 : 1));
+  clicks = clicks.add(clickAmount());
 };
+function clickAmount() {
+  var c = new ExpantaNum(1).add(perkLvl[1]).mul(elemBought[44] ? 100 : 1).mul(elemBought[45] ? 5000 : 1).mul(elemBought[46] ? 1000000 : 1);
+  if (elemBought[48]) c = c.pow(1.5);
+  if (elemBought[49]) c = c.pow(1.5);
+  if (snUpg[3]) c = c.pow(2);
+  if (elemBought[50]) c = c.pow(2);
+  if (elemBought[51]) c = c.pow(2);
+  return c;
+}
 document.getElementById("pk1").onclick = function () {
   buyPerk(1);
 };
@@ -1235,6 +1278,9 @@ document.getElementById("ty1").onclick = function () {
 };
 document.getElementById("ty2").onclick = function () {
   buyTycoonUpg(2);
+};
+document.getElementById("ty3").onclick = function () {
+  buyTycoonUpg(3);
 };
 
 document.getElementById("atomreset").onclick = doAtomReset;
@@ -1365,11 +1411,31 @@ function loop(now) {
     clickerLvl++;
     perks++;
   }
-  if (tyUpgs[0] || tyUpgs[1]) {
+  if (tyUpgs[0] || tyUpgs[1] || tyUpgs[2]) {
     var moneyRate = new ExpantaNum(1);
     if (tyUpgs[0]) moneyRate = moneyRate.mul(5);
     if (tyUpgs[1]) moneyRate = moneyRate.mul(5);
+    if (tyUpgs[2]) moneyRate = moneyRate.pow(2);
+    if (elemBought[48]) moneyRate = moneyRate.pow(2);
+    if (elemBought[49]) moneyRate = moneyRate.pow(2);
+    if (snUpg[3]) moneyRate = moneyRate.pow(2);
+    if (snUpg[3]) moneyRate = moneyRate.pow(2);
+    if (elemBought[50]) moneyRate = moneyRate.pow(2);
+    if (elemBought[51]) moneyRate = moneyRate.pow(2);
     money = money.add(moneyRate.mul(dt));
+  }
+  if (elemBought[48]) {
+    while (atoms.gte(ttCost())) buyTT();
+    if (!timeBought && atoms.gte(new ExpantaNum("1e6791"))) buyTime();
+    clicks = clicks.add(clickAmount().mul(dt));
+  }
+  if (elemBought[50]) {
+    while (clicks.gte(clickUpgCost(1))) buyClickerUpg(1);
+    while (clicks.gte(clickUpgCost(2))) buyClickerUpg(2);
+  }
+  if (elemBought[51]) {
+    for (var cua2 = 1; cua2 <= COMET_UPGRADES.length; cua2++) buyCometUpg(cua2);
+    supernova = supernova.add(snGainRaw().mul(10).mul(dt));
   }
   if (elemBought[24]) buyInfMax();
   if (elemBought[26]) {
@@ -1377,10 +1443,10 @@ function loop(now) {
     green = green.mul(new ExpantaNum(10).pow(dt)).min(rgbCap());
     blue = blue.mul(new ExpantaNum(10).pow(dt)).min(rgbCap());
     if (elemBought[27]) {
-      var rgbpw = elemBought[29] ? 100 : (elemBought[28] ? 1.3 : 1.05);
-      red = red.pow(new ExpantaNum(rgbpw).pow(dt)).min(rgbCap());
-      green = green.pow(new ExpantaNum(rgbpw).pow(dt)).min(rgbCap());
-      blue = blue.pow(new ExpantaNum(rgbpw).pow(dt)).min(rgbCap());
+      var rgbpw = elemBought[52] ? new ExpantaNum(10).pow(new ExpantaNum(1e100)) : new ExpantaNum(elemBought[29] ? 100 : (elemBought[28] ? 1.3 : 1.05));
+      red = red.pow(rgbpw.pow(dt)).min(rgbCap());
+      green = green.pow(rgbpw.pow(dt)).min(rgbCap());
+      blue = blue.pow(rgbpw.pow(dt)).min(rgbCap());
     }
   }
   if (!quarkUpg[9] && voidAmt.gt(VOID_CAP)) voidAmt = new ExpantaNum(VOID_CAP);
@@ -1498,7 +1564,7 @@ function loop(now) {
         "<div id='rgreen'></div><br>" +
         "<div id='rblue'></div>";
     }
-    var rgbRate = elemBought[29] ? "^100/s" : (elemBought[28] ? "^1.3/s" : (elemBought[27] ? "^1.05/s" : "x10/s"));
+    var rgbRate = elemBought[52] ? "^" + fmt(new ExpantaNum(10).pow(new ExpantaNum(1e100))) + "/s" : (elemBought[29] ? "^100/s" : (elemBought[28] ? "^1.3/s" : (elemBought[27] ? "^1.05/s" : "x10/s")));
     document.getElementById("rred").textContent = "Red: " + fmt(red) + "/" + fmt(rgbCap()) + " (" + rgbRate + ") -> Atoms x" + fmt(red.log10().div(3).pow(1.1));
     document.getElementById("rgreen").textContent = "Green: " + fmt(green) + "/" + fmt(rgbCap()) + " (" + rgbRate + ") -> Quarks ^" + fmt(green.log10().div(3).pow(1.2));
     document.getElementById("rblue").textContent = "Blue: " + fmt(blue) + "/" + fmt(rgbCap()) + " (" + rgbRate + ") -> Void ^" + fmt(blue.log10().div(3).pow(1.5));
@@ -1724,6 +1790,7 @@ function loop(now) {
         var suN = SN_UPGRADES[si2];
         if (si2 === 1 && !elemBought[43]) continue;
         if (si2 === 2 && !snUpg[1]) continue;
+        if (si2 === 3 && !elemBought[49]) continue;
         mh += "<div style='display:flex;justify-content:center'><button id='snub" + (si2 + 1) + "' style='width:240px;height:88px;border:2px solid #fff;color:#fff;cursor:pointer;font-family:inherit;padding:6px'>" +
           "<div style='font-size:15px;font-weight:bold'>" + suN.name + "</div>" +
           "<div style='font-size:11px;margin-top:3px'>" + suN.info + "</div>" +
@@ -1777,13 +1844,14 @@ function loop(now) {
 
   if (curTab === "tycoon" && elemBought[47]) {
     document.getElementById("moneyamt").textContent = "Money: " + fmt(money);
-    var tyNames = ["Tycoon Upgrade I", "Tycoon Upgrade II"];
-    var tyInfos = ["Generates 1 money per second", "Money x5, Cosmic dust ^1.1"];
-    for (var tyk = 1; tyk <= 2; tyk++) {
+    var tyNames = ["Tycoon Upgrade I", "Tycoon Upgrade II", "Tycoon Upgrade III"];
+    var tyInfos = ["Generates 1 money per second", "Money x5, Cosmic dust ^1.1", "Money gain ^2, Atoms ^1.1, Cosmic dust ^1.2, Comets ^1.2"];
+    var tyCosts = [10, 10, 500];
+    for (var tyk = 1; tyk <= 3; tyk++) {
       var tyb = document.getElementById("ty" + tyk);
-      tyb.textContent = tyNames[tyk - 1] + (tyUpgs[tyk - 1] ? " (BOUGHT)" : "") + ": " + tyInfos[tyk - 1] + "\nCost: 10 Money";
+      tyb.textContent = tyNames[tyk - 1] + (tyUpgs[tyk - 1] ? " (BOUGHT)" : "") + ": " + tyInfos[tyk - 1] + "\nCost: " + fmt(new ExpantaNum(tyCosts[tyk - 1])) + " Money";
       if (tyUpgs[tyk - 1]) { tyb.disabled = true; tyb.style.background = "#006400"; }
-      else if ((tyk === 2 && !tyUpgs[0]) || money.lt(10)) { tyb.disabled = true; tyb.style.background = "#b03030"; }
+      else if ((tyk === 2 && !tyUpgs[0]) || (tyk === 3 && !tyUpgs[1]) || money.lt(new ExpantaNum(tyCosts[tyk - 1]))) { tyb.disabled = true; tyb.style.background = "#b03030"; }
       else { tyb.disabled = false; tyb.style.background = "#8b8b00"; }
     }
   }
