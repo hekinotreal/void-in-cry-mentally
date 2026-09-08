@@ -98,6 +98,7 @@ body { background: darkblue; color: white; }
 <div id="moneyamt"></div>
 <br>
 <button id="ty1">Tycoon Upgrade I</button>
+<button id="ty2">Tycoon Upgrade II</button>
 </div>
 <div id="einfo" style="position:fixed;display:none;background:#000;color:#fff;padding:6px 10px;z-index:100;pointer-events:none;white-space:pre;"></div>
 <script>
@@ -813,6 +814,7 @@ function cosmicDustRate() {
   if (clickUpgLvl[0] > 0) r = r.pow(new ExpantaNum(1.01).pow(clickUpgLvl[0]));
   if (perkLvl[2] > 0) r = r.pow(new ExpantaNum(1.01).pow(perkLvl[2]));
   if (elemBought[37] && cosmicDust.gt(1)) r = r.mul(cosmicDust.log10().pow(1.2));
+  if (tyUpgs[1]) r = r.pow(1.1);
   return r;
 }
 function buySpace(i) {
@@ -969,6 +971,7 @@ function buyClickerUpg(i) {
 }
 function buyTycoonUpg(i) {
   if (tyUpgs[i - 1]) return;
+  if (i === 2 && !tyUpgs[0]) return;
   if (money.lt(10)) return;
   money = money.sub(10);
   tyUpgs[i - 1] = true;
@@ -1230,6 +1233,9 @@ document.getElementById("cu2").onclick = function () {
 document.getElementById("ty1").onclick = function () {
   buyTycoonUpg(1);
 };
+document.getElementById("ty2").onclick = function () {
+  buyTycoonUpg(2);
+};
 
 document.getElementById("atomreset").onclick = doAtomReset;
 
@@ -1359,7 +1365,12 @@ function loop(now) {
     clickerLvl++;
     perks++;
   }
-  if (tyUpgs[0]) money = money.add(dt);
+  if (tyUpgs[0] || tyUpgs[1]) {
+    var moneyRate = new ExpantaNum(1);
+    if (tyUpgs[0]) moneyRate = moneyRate.mul(5);
+    if (tyUpgs[1]) moneyRate = moneyRate.mul(5);
+    money = money.add(moneyRate.mul(dt));
+  }
   if (elemBought[24]) buyInfMax();
   if (elemBought[26]) {
     red = red.mul(new ExpantaNum(10).pow(dt)).min(rgbCap());
@@ -1766,11 +1777,15 @@ function loop(now) {
 
   if (curTab === "tycoon" && elemBought[47]) {
     document.getElementById("moneyamt").textContent = "Money: " + fmt(money);
-    var tyb = document.getElementById("ty1");
-    tyb.textContent = "Tycoon Upgrade I" + (tyUpgs[0] ? " (BOUGHT)" : "") + ": Generates 1 money per second\nCost: 10 Money";
-    if (tyUpgs[0]) { tyb.disabled = true; tyb.style.background = "#006400"; }
-    else if (money.gte(10)) { tyb.disabled = false; tyb.style.background = "#8b8b00"; }
-    else { tyb.disabled = true; tyb.style.background = "#b03030"; }
+    var tyNames = ["Tycoon Upgrade I", "Tycoon Upgrade II"];
+    var tyInfos = ["Generates 1 money per second", "Money x5, Cosmic dust ^1.1"];
+    for (var tyk = 1; tyk <= 2; tyk++) {
+      var tyb = document.getElementById("ty" + tyk);
+      tyb.textContent = tyNames[tyk - 1] + (tyUpgs[tyk - 1] ? " (BOUGHT)" : "") + ": " + tyInfos[tyk - 1] + "\nCost: 10 Money";
+      if (tyUpgs[tyk - 1]) { tyb.disabled = true; tyb.style.background = "#006400"; }
+      else if ((tyk === 2 && !tyUpgs[0]) || money.lt(10)) { tyb.disabled = true; tyb.style.background = "#b03030"; }
+      else { tyb.disabled = false; tyb.style.background = "#8b8b00"; }
+    }
   }
 
   if (curTab === "elements" && atomResets > 0) {
