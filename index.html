@@ -10,7 +10,7 @@ body { background: darkblue; color: white; }
 </style>
 </head>
 <body>
-<div id="topright"><button id="export">Export</button><button id="import">Import</button><button id="atab">Achievements</button><button id="qtab">Quarks</button><button id="etab">Elements</button><button id="ctab" style="display:none">Challenges</button><button id="itab" style="display:none">Infinite</button><button id="rtab" style="display:none">RGB</button><button id="ttab" style="display:none">Time Travelling</button><button id="spab" style="display:none">Space</button><button id="mtab" style="display:none">Milestones</button><button id="clicktab" style="display:none">Clicker</button><button id="tytab" style="display:none">Tycoon</button><button id="hardreset">Hard Reset</button></div>
+<div id="topright"><button id="export">Export</button><button id="import">Import</button><button id="atab">Achievements</button><button id="qtab">Quarks</button><button id="etab">Elements</button><button id="ctab" style="display:none">Challenges</button><button id="itab" style="display:none">Infinite</button><button id="rtab" style="display:none">RGB</button><button id="ttab" style="display:none">Time Travelling</button><button id="spab" style="display:none">Space</button><button id="mtab" style="display:none">Milestones</button><button id="clicktab" style="display:none">Clicker</button><button id="tytab" style="display:none">Tycoon</button><button id="mattab" style="display:none">Material</button><button id="uptab" style="display:none">Upgradables</button><button id="letab" style="display:none">Legacy</button><button id="hardreset">Hard Reset</button></div>
 <div id="savepopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:200;">
   <div id="savepop-title">Save</div>
   <textarea id="savebox" style="width:100%;height:180px;"></textarea>
@@ -67,6 +67,8 @@ body { background: darkblue; color: white; }
 <br>
 <button id="qb23"></button>
 <br>
+<button id="qb24"></button>
+<br>
 </div>
 <div id="elist" style="display:none"></div>
 <div id="clist" style="display:none"></div>
@@ -101,6 +103,30 @@ body { background: darkblue; color: white; }
 <button id="ty2">Tycoon Upgrade II</button>
 <button id="ty3">Tycoon Upgrade III</button>
 </div>
+<div id="matlist" style="display:none">
+<div style="font-size:20px;margin-bottom:10px">Material</div>
+<div id="matamt"></div>
+<br>
+<button id="matswitch">Switch to Antimatter</button>
+<br><br>
+<div id="matdims"></div>
+</div>
+<div id="uplist" style="display:none">
+<div style="font-size:20px;margin-bottom:10px">Upgradables</div>
+<div id="matupgamt"></div>
+<br>
+<button id="matu1">Matter & Antimatter Upgrade I</button>
+<button id="matu2">Matter & Antimatter Upgrade II</button>
+<button id="matu3">Matter & Antimatter Upgrade III</button>
+</div>
+<div id="leglist" style="display:none">
+<div style="font-size:20px;margin-bottom:10px">Legacy</div>
+<div id="levamt"></div>
+<br>
+<button id="levu1">Legacy Upgrade I</button>
+<button id="levu2" style="display:none">Legacy Upgrade II</button>
+<button id="levu3" style="display:none">Legacy Upgrade III</button>
+</div>
 <div id="einfo" style="position:fixed;display:none;background:#000;color:#fff;padding:6px 10px;z-index:100;pointer-events:none;white-space:pre;"></div>
 <script>
 var SAVE_KEY = "voidSave";
@@ -109,7 +135,7 @@ var VOID_CAP = new ExpantaNum("179e306"); // 179UCe
 var voidAmt = new ExpantaNum(0);
 var quarks = new ExpantaNum(0);
 var lv = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-var quarkUpg = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+var quarkUpg = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
 var keptBase7 = 0;
 var keptBase8 = 0;
 var resetCount = 0;
@@ -135,6 +161,30 @@ var PERK_MAX = [10, 25, 100];
 var clickUpgLvl = [0, 0];
 var money = new ExpantaNum(0);
 var tyUpgs = [false, false, false, false, false];
+var matter = new ExpantaNum(0);
+var antimatter = new ExpantaNum(0);
+var matterDims = [new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0)];
+var antimatterDims = [new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0), new ExpantaNum(0)];
+var matSide = "matter";
+var curMatSideShown = "none";
+var dim9count = 0;
+var matUpgs = [false, false, false, false, false];
+var legacyEnergy = new ExpantaNum(0);
+var legacyUpgs = [false, false, false];
+var upg20Bought = false;
+var engineCount = 0;
+var ENGINE_COST = new ExpantaNum(10).pow(new ExpantaNum(10).pow(new ExpantaNum("1e159")));
+function engineCost() { return ENGINE_COST.pow(new ExpantaNum(100000).pow(engineCount)); }
+function buyEngine() {
+  if (engineCount >= 4) return;
+  var ec = engineCost();
+  if (atoms.lt(ec)) return;
+  atoms = atoms.sub(ec);
+  engineCount++;
+  save();
+}
+var ANTI_DIM_COSTS = [10, 100, 1e4, 1e6, 1e9, 1e13, 1e18, 1e24];
+var MAT_DIM_COSTS = [1e6, 1e7, 1e9, 1e11, 1e14, 1e18, 1e23, 1e29];
 var spaceB = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
 var spaceLvl = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var atoms = new ExpantaNum(0);
@@ -143,14 +193,16 @@ var elemBought = [false, false, false, false, false, false, false, false, false,
 var hBonus = false;
 var achs = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
 var chalActive = false;
+var chalIdx = 0;
 var chalDone = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
 var chalReward = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
-var CHAL_GOALS = ["179e306"];
+var CHAL_GOALS = ["179e306", "179e306"];
 var CHAL_DESCS = [
-  "Goal: 179UCe Void. Nerf: Void gain ^0.0000001, no achievement boost. Activating resets Void, Upgrades, Quarks, and Quark Upgrades (keeps Atoms, Elements, Achievements). Reward: x1M Atom gain"
+  "Goal: 179UCe Void. Nerf: Void gain ^0.0000001, no achievement boost. Activating resets Void, Upgrades, Quarks, and Quark Upgrades (keeps Atoms, Elements, Achievements). Reward: x1M Atom gain",
+  "Goal: 179UCe Void. Nerf: Void gain ^0.0000001, no achievement boost. Activating resets Void, Upgrades, Quarks, and Quark Upgrades (keeps Atoms, Elements, Achievements). Reward: Atom gain ^1M"
 ];
-var CHAL_NERFS = ["Void gain ^0.0000001, achievement boost disabled"];
-var CHAL_REWARDS = ["x1M Atom gain"];
+var CHAL_NERFS = ["Void gain ^0.0000001, achievement boost disabled", "Void gain ^0.0000001, achievement boost disabled"];
+var CHAL_REWARDS = ["x1M Atom gain", "Atom gain ^1M"];
 var ACH_NAMES = ["Generational start", "Starting off strong", "Voidless mess", "A million of nothing", "Wow ur far now", "Nothing but void", "Boring but free boost is always good", "Ooo so good", "Finally out of the hard part", "10 billion of nothing", "Robert", "Topala", "Interesting", "Tobert Ropala", "10th anniversary for upgrades", "Veeery intersting", "I hear something", "Quarter of the letter", "Deka-void", "", "Reach level 30 in Upgrade 12", "Finally something existant", "Wow the numbers are getting bigger but still capped haha", "Pretty far right?", "FINALLY NO CAP", "Atomic age"];
 var ACH_DESCS = ["Get 1 Void", "Buy Upgrade 3", "Get 1000 Void", "Get 1 million Void", "Buy Upgrade 5", "Reach 100M Void", "Max out Upgrade 5", "Max out Upgrade 3", "Buy 2 of Upgrade 6", "Get 10 billion Void", "Reach 1 quadrillion Void", "Reach 1 quintillion Void", "Buy Upgrade 8", "Buy Upgrade 9", "Buy Upgrade 10", "Reach 5 octillion Void", "Reach 100 octillion Void", "Buy 50 levels of Upgrade 8", "Reach 1 decillion Void", "Buy Upgrade 11", "Reach level 30 in Upgrade 12", "Do a Quark reset", "Buy Quark Upgrade 4", "Buy Quark Upgrade 7", "Buy Quark Upgrade 10", "Do an Atom reset"];
 var UPG_MAX = [5, 20, 42, 10, 20, 10, 20, 200, 10, 20, 50, 100, 100, 100, -10, 10, 15, 50, 50];
@@ -190,7 +242,7 @@ function save() {
     v: sane(voidAmt).toString(), k: sane(quarks).toString(), a: sane(atoms).toString(), ar: atomResets,
     l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6],
     s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18],
-c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: sane(red).toString(), gr: sane(green).toString(), bl: sane(blue).toString(), tp: sane(ttparts).toString(), tm: timeBought, cdst: sane(cosmicDust).toString(), sb: spaceB, sl: spaceLvl, cm: sane(comets).toString(), cu: cometUpg, sn: sane(supernova).toString(), snT: sane(snTotal).toString(), snm: snMilestones, snu: snUpg, cl: sane(clicks).toString(), cll: clickerLvl, clk: perks, clv: perkLvl, clu: clickUpgLvl, mo: sane(money).toString(), ty: tyUpgs
+c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, ci: chalIdx, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: sane(red).toString(), gr: sane(green).toString(), bl: sane(blue).toString(), tp: sane(ttparts).toString(), tm: timeBought, cdst: sane(cosmicDust).toString(), sb: spaceB, sl: spaceLvl, cm: sane(comets).toString(), cu: cometUpg, sn: sane(supernova).toString(), snT: sane(snTotal).toString(), snm: snMilestones, snu: snUpg, cl: sane(clicks).toString(), cll: clickerLvl, clk: perks, clv: perkLvl, clu: clickUpgLvl, mo: sane(money).toString(), ty: tyUpgs, mu: matUpgs, ma: sane(matter).toString(), am: sane(antimatter).toString(), mds: matterDims.map(function (x) { return x.toString(); }), ads: antimatterDims.map(function (x) { return x.toString(); }), msi: matSide, d9: dim9count, le: sane(legacyEnergy).toString(), lg: legacyUpgs, u20: upg20Bought, eg: engineCount
   }));
 }
 
@@ -215,6 +267,7 @@ function load() {
     if (d.eb) for (var j = 0; j < elemBought.length; j++) elemBought[j] = !!d.eb[j];
     maxReset = !!d.mr;
     chalActive = !!d.ca;
+    if (d.ci !== undefined) chalIdx = +(d.ci) || 0;
     if (d.cd) for (var j = 0; j < chalDone.length; j++) chalDone[j] = !!d.cd[j];
     if (d.cr) for (var j = 0; j < chalReward.length; j++) chalReward[j] = !!d.cr[j];
     keptBase7 = d.b7 || 0;
@@ -242,11 +295,21 @@ function load() {
     if (d.clu) for (var cku2 = 0; cku2 < clickUpgLvl.length; cku2++) clickUpgLvl[cku2] = d.clu[cku2] || 0;
     money = d.mo !== undefined ? sane(new ExpantaNum(d.mo)) : new ExpantaNum(0);
     if (d.ty) for (var tyi = 0; tyi < tyUpgs.length; tyi++) tyUpgs[tyi] = !!d.ty[tyi];
+    if (d.mu) for (var mui = 0; mui < matUpgs.length; mui++) matUpgs[mui] = !!d.mu[mui];
+    matter = d.ma !== undefined ? sane(new ExpantaNum(d.ma)) : new ExpantaNum(0);
+    antimatter = d.am !== undefined ? sane(new ExpantaNum(d.am)) : new ExpantaNum(0);
+    if (d.mds) for (var mdi = 0; mdi < matterDims.length; mdi++) matterDims[mdi] = d.mds[mdi] !== undefined ? sane(new ExpantaNum(d.mds[mdi])) : new ExpantaNum(0);
+    if (d.ads) for (var adi = 0; adi < antimatterDims.length; adi++) antimatterDims[adi] = d.ads[adi] !== undefined ? sane(new ExpantaNum(d.ads[adi])) : new ExpantaNum(0);
+    matSide = d.msi || "matter";
+    dim9count = d.d9 || 0;
+    legacyEnergy = d.le !== undefined ? sane(new ExpantaNum(d.le)) : new ExpantaNum(0);
+    if (d.lg) for (var lgi = 0; lgi < legacyUpgs.length; lgi++) legacyUpgs[lgi] = !!d.lg[lgi];
+upg20Bought = !!d.u20;
+    engineCount = d.eg || 0;
     hBonus = !!d.hb;
     if (elemBought[0] && !hBonus) {
-      for (var vi = 0; vi < lv.length; vi++) lv[vi] += 20;
+      for (var vi2 = 0; vi2 < lv.length; vi2++) lv[vi2] += 20;
       hBonus = true;
-      save();
     }
   } catch (e) {}
 }
@@ -449,6 +512,7 @@ function quarkGain() {
   if (quarkUpg[17]) g = g.pow(1.5);
   if (quarkUpg[18]) g = g.pow(1.3);
   if (elemBought[33]) g = g.pow(new ExpantaNum("1e100"));
+  if (upg20Bought) g = g.pow(new ExpantaNum(10).pow(new ExpantaNum(308)));
   return g;
 }
 
@@ -490,6 +554,8 @@ function atomGain() {
   if (elemBought[25]) g = g.mul(10000);
   if (quarkUpg[22]) g = g.mul(100);
   if (chalDone[0] || chalReward[0]) g = g.mul(1e6);
+  if (chalDone[1] || chalReward[1]) g = g.pow(1e6);
+  if (engineCount > 0) g = g.pow(new ExpantaNum(100).pow(engineCount));
   if (elemBought[26] && red.gt(1)) g = g.mul(red.log10().div(3).pow(1.1));
   if (infLvl > 0) g = g.mul(new ExpantaNum(2).pow(infLvl));
   if (elemBought[31] && ttparts.gt(0)) g = g.pow(new ExpantaNum(1.1).pow(ttparts));
@@ -575,6 +641,11 @@ function elemCostNum(i) {
   if (i === 51) return new ExpantaNum("1e950e9");
   if (i === 52) return new ExpantaNum("1e39e12");
   if (i === 53) return new ExpantaNum("1e6e15");
+  if (i === 54) return new ExpantaNum(10).pow(new ExpantaNum(1e149));
+  if (i === 55) return new ExpantaNum("1e16");
+  if (i === 56) return new ExpantaNum("1e20");
+  if (i === 57) return new ExpantaNum("1e72");
+  if (i === 58) return new ExpantaNum(10).pow(new ExpantaNum(10).pow(new ExpantaNum("1e159")));
   if (!INF_COST) INF_COST = new ExpantaNum(Infinity);
   return INF_COST;
 }
@@ -633,12 +704,17 @@ function elemCostStr(i) {
   if (i === 51) return "1e950B Atoms";
   if (i === 52) return "1e39T Atoms";
   if (i === 53) return "1e6Qa Atoms";
+  if (i === 54) return "1e1e149 Atoms";
+  if (i === 55) return "10Qa Antimatter & Matter";
+  if (i === 56) return "100Qt Antimatter & Matter";
+  if (i === 57) return "TVg Antimatter";
+  if (i === 58) return "1e1DQig Atoms";
   return "1J10";
 }
 var ELEM_EFFECT = [
   "x2 Atoms, Autobuys Void upgrades, x2 Void, x2 Quarks, +20 levels to all Void upgrades",
   "x10 Quarks, Void ^1.1, x1.5 Atoms, +1000% Quarks on reset per second", "Autobuys Quark upgrades, x3 Atoms, Void ^5, x10 Quarks",   "Void ^2, x3 Atoms, Quarks ^2", "Void ^5, Quarks ^5, x50 Atoms",   "Quarks ^2, Void ^2, x100 Atoms, Uncap Quarks", "Void ^25, Quarks ^25, Atoms ^1.5", "x10 Atoms, Quarks ^3, Void ^3", "Void ^50, Quarks ^50, x3 Atoms", "Void ^50, Quarks ^50", "Unlocks the Challenges tab", "^100 Void", "^100 Quarks", "x100 Atoms", "Unlocks the Infinite tab", "Infinite Upgrade cost x25 -> x10", "x100 Atoms, Infinite Upgrade cost x10 -> x5", "Atoms +10000%/s, x100 Atoms", "x1k Atoms, ^100 Quarks, ^10000 Void", "x10K Atoms, Infinite Upgrade cost x5 -> x4", "x100K Atoms, Infinite Upgrade cost x4 -> x3", "Infinite Upgrade max level +100", "x10K Atoms, ^100 Void, ^100 Quarks", "^100M Void, ^100M Quarks, x100 Atoms", "x100 Atoms, Infinite upgrade max +500, Autobuys Infinite upgrade", "x10K Atoms, ^100B Void, ^100B Quarks", "Unlocks the RGB tab", "RGB ^1.05/s, RGB cap 1e3003", "RGB ^1.3/s, RGB cap 1e3M", "RGB ^100/s, RGB cap 1e10DTg", "Infinite upgrade max +9300", "Unlocks the Time Travelling tab", "Atoms ^1.05", "Quarks ^1e100, Void ^1e100", "Infinite upgrade max +90000, Infinite upgrade cost x3 -> x4.5", "Unlocks Time in Time Travelling", "Unlocks the Space tab", "Cosmic dust rate x (log10(cosmic dust))^1.2", "x10 cosmic dust", "x100 cosmic dust, x10 comets", "x1B cosmic dust, x2 comets, Cosmic dust & Comets x(log10(CD)^1)", "Cosmic dust ^1.05, x40 comets", "Cosmic dust ^1.1, Comets ^1.2",
-  "x3 Supernovas, Unlocks a new Supernova Upgrade", "x100 Clicks", "x5000 Clicks, x3 Supernovas", "x1M Clicks, x10 Supernovas", "Unlocks the Tycoon tab", "Autobuys TT parts, Autoclicks, Clicks ^1.5, Money ^2, Cosmic dust ^1.1, Comets ^1.2, Supernova ^1.3", "Money ^2, Clicks ^1.5, Cosmic dust ^1.4, Comets ^1.5, Supernova ^1.6", "Atoms ^2, Space currencies ^2, Clicks ^2, Money ^2, Autobuys clicker upgrades", "Atoms ^2, Space ^2, Clicks ^2, Money ^2, Autobuys comet upgrades, +1000% Supernova/s", "RGB cap 1e1e1e100, RGB power ^1e1e100", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon..."];
+  "x3 Supernovas, Unlocks a new Supernova Upgrade", "x100 Clicks", "x5000 Clicks, x3 Supernovas", "x1M Clicks, x10 Supernovas", "Unlocks the Tycoon tab", "Autobuys TT parts, Autoclicks, Clicks ^1.5, Money ^2, Cosmic dust ^1.1, Comets ^1.2, Supernova ^1.3", "Money ^2, Clicks ^1.5, Cosmic dust ^1.4, Comets ^1.5, Supernova ^1.6", "Atoms ^2, Space currencies ^2, Clicks ^2, Money ^2, Autobuys clicker upgrades", "Atoms ^2, Space ^2, Clicks ^2, Money ^2, Autobuys comet upgrades, +1000% Supernova/s", "RGB cap 1e1e1e100, RGB power ^1e1e100", "Unlocks the Material tab", "x100 Antimatter & Matter", "x1M Antimatter & Matter, Unlocks the Upgradables tab", "Autobuys Matter & Antimatter Dimensions, Antimatter & Matter ^2", "x100 Legacy Energy, Unlocks Legacy Upgrade III", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon...", "Coming soon..."];
 
 function bulkAmount() {
   if (quarkUpg[7]) return 250;
@@ -674,11 +750,31 @@ for (var ui = 1; ui <= 19; ui++) {
   })(ui);
 }
 
+var UP20_COST = new ExpantaNum(10).pow(new ExpantaNum(10).pow(new ExpantaNum("15").mul(new ExpantaNum("1e99"))));
+var UP20_VOID_MULT = new ExpantaNum(10).pow(new ExpantaNum(10).pow(new ExpantaNum(10).pow(new ExpantaNum("100").mul(new ExpantaNum("1e99")))));
+var UP24_COST = new ExpantaNum(10).pow(new ExpantaNum(10).pow(new ExpantaNum("112").mul(new ExpantaNum("1e99"))));
+function buyUpg20() {
+  if (upg20Bought || !legacyUpgs[0]) return;
+  if (voidAmt.lt(UP20_COST)) return;
+  voidAmt = voidAmt.sub(UP20_COST);
+  upg20Bought = true;
+  save();
+}
+var upg20d = document.createElement("div");
+upg20d.id = "upg20";
+upgsEl.appendChild(upg20d);
+var upg20b = document.createElement("button");
+upg20b.id = "buy20";
+upg20b.textContent = "Upgrade 20";
+upg20b.onclick = function () { buyUpg20(); };
+upgsEl.appendChild(upg20b);
+
 function buyQuark(i) {
   if (chalActive) return;
   if (quarkUpg[i - 1]) return;
   if ((i === 1 && quarkUpg[1]) || (i === 2 && quarkUpg[0])) return;
-  if (quarks.lt(QUARK_COST[i - 1])) return;
+  if (i === 24 && !upg20Bought) return;
+  if (quarks.lt(i === 24 ? UP24_COST : QUARK_COST[i - 1])) return;
   quarkUpg[i - 1] = true;
   if (i === 4 && !achs[22]) achs[22] = true;
 }
@@ -836,6 +932,7 @@ function cosmicDustRate() {
   if (snUpg[3]) r = r.pow(2);
   if (elemBought[50]) r = r.pow(2);
   if (elemBought[51]) r = r.pow(2);
+  if (snUpg[4]) r = r.pow(10);
   return r;
 }
 function buySpace(i) {
@@ -894,6 +991,7 @@ function cometGainRaw() {
   if (elemBought[49]) g = g.pow(1.5);
   if (elemBought[50]) g = g.pow(2);
   if (elemBought[51]) g = g.pow(2);
+  if (snUpg[4]) g = g.pow(10);
   return g;
 }
 function cometGain() {
@@ -921,7 +1019,8 @@ var SN_UPGRADES = [
   { name: "Finally something new", info: "Autobuys all Cosmic Dust upgrades, Generates +1000% Comets/s", cost: new ExpantaNum(1) },
   { name: "Average boost in gut2", info: "x100 cosmic dust, x20 comets, x1.3 supernova", cost: new ExpantaNum(5) },
   { name: "simple boost just an arrow", info: "Cosmic dust ^1.1, Comets ^1.1", cost: new ExpantaNum(100) },
-  { name: "we are getting more money we are richer than elon musk", info: "Money ^2, Clicks ^2, Cosmic dust ^2, Money ^2", cost: new ExpantaNum("5e7") }
+  { name: "we are getting more money we are richer than elon musk", info: "Money ^2, Clicks ^2, Cosmic dust ^2, Money ^2", cost: new ExpantaNum("5e7") },
+  { name: "Material power", info: "Space ^10, Antimatter & Matter ^1.5", cost: new ExpantaNum("5e10") }
 ];
 var MILESTONES = [
   { name: "A brand new universe", req: "Have 1 Supernova total", info: "x4 cosmic dust, x2 comets" },
@@ -1011,20 +1110,94 @@ function buyTycoonUpg(i) {
   tyUpgs[i - 1] = true;
   save();
 }
+function antiDimCost(i) {
+  return new ExpantaNum(ANTI_DIM_COSTS[i - 1]).mul(new ExpantaNum(10).pow(antimatterDims[i - 1]));
+}
+function matDimCost(i) {
+  if (i === 9) return new ExpantaNum("1e200").mul(new ExpantaNum(1.05).pow(dim9count));
+  return new ExpantaNum(MAT_DIM_COSTS[i - 1]).mul(new ExpantaNum(10).pow(matterDims[i - 1]));
+}
+function buyAntimatterDim(i) {
+  var c = antiDimCost(i);
+  if (antimatter.lt(c)) return;
+  antimatter = antimatter.sub(c);
+  antimatterDims[i - 1] = antimatterDims[i - 1].add(1);
+  save();
+}
+function buyMatterDim(i) {
+  if (i === 9) {
+    if (dim9count >= 4000) return;
+    var c9 = matDimCost(9);
+    if (matter.lt(c9)) return;
+    matter = matter.sub(c9);
+    dim9count++;
+    save();
+    return;
+  }
+  var c = matDimCost(i);
+  if (matter.lt(c)) return;
+  matter = matter.sub(c);
+  matterDims[i - 1] = matterDims[i - 1].add(1);
+  save();
+}
+function switchMatSide() {
+  matSide = matSide === "matter" ? "antimatter" : "matter";
+}
+function matUpgCost(i) {
+  if (i === 1) return new ExpantaNum("1e33");
+  if (i === 2) return new ExpantaNum("1e46");
+  if (i === 3) return new ExpantaNum("1e5093");
+  return new ExpantaNum("1e99").mul(new ExpantaNum(10).pow(new ExpantaNum(33).mul(i - 3)));
+}
+function softcapGain(g, cap) {
+  if (g.lte(cap)) return g;
+  return cap.mul(g.div(cap).pow(0.5));
+}
+function buyMatUpg(i) {
+  if (matUpgs[i - 1]) return;
+  var uc = matUpgCost(i);
+  var cur = i === 2 ? matter : antimatter;
+  if (cur.lt(uc)) return;
+  if (i === 2) matter = matter.sub(uc);
+  else antimatter = antimatter.sub(uc);
+  matUpgs[i - 1] = true;
+  save();
+}
 
 function buyElement(i) {
   if (elemBought[i - 1]) return;
-  if (i !== 1 && i !== 2 && i !== 3 && i !== 4 && i !== 5 && i !== 6 && i !== 7 && i !== 8 && i !== 9 && i !== 10 && i !== 11 && i !== 12 && i !== 13 && i !== 14 && i !== 15 && i !== 16 && i !== 17 && i !== 18 && i !== 19 && i !== 20 && i !== 21 && i !== 22 && i !== 23 && i !== 24 && i !== 25 && i !== 26 && i !== 27 && i !== 28 && i !== 29 && i !== 30 && i !== 31 && i !== 32 && i !== 33 && i !== 34 && i !== 35 && i !== 36 && i !== 37 && i !== 38 && i !== 39 && i !== 40 && i !== 41 && i !== 42 && i !== 43 && i !== 44 && i !== 45 && i !== 46 && i !== 47 && i !== 48 && i !== 49 && i !== 50 && i !== 51 && i !== 52 && i !== 53) return;
-  if (atoms.lt(elemCostNum(i))) return;
-  atoms = atoms.sub(elemCostNum(i));
+  if (i !== 1 && i !== 2 && i !== 3 && i !== 4 && i !== 5 && i !== 6 && i !== 7 && i !== 8 && i !== 9 && i !== 10 && i !== 11 && i !== 12 && i !== 13 && i !== 14 && i !== 15 && i !== 16 && i !== 17 && i !== 18 && i !== 19 && i !== 20 && i !== 21 && i !== 22 && i !== 23 && i !== 24 && i !== 25 && i !== 26 && i !== 27 && i !== 28 && i !== 29 && i !== 30 && i !== 31 && i !== 32 && i !== 33 && i !== 34 && i !== 35 && i !== 36 && i !== 37 && i !== 38 && i !== 39 && i !== 40 && i !== 41 && i !== 42 && i !== 43 && i !== 44 && i !== 45 && i !== 46 && i !== 47 && i !== 48 && i !== 49 && i !== 50 && i !== 51 && i !== 52 && i !== 53 && i !== 54 && i !== 55 && i !== 56 && i !== 57 && i !== 58) return;
+  if (i === 57) {
+    var e57c = new ExpantaNum("1e72");
+    if (antimatter.lt(e57c)) return;
+    antimatter = antimatter.sub(e57c);
+  } else if (i === 55 || i === 56) {
+    var ecx = i === 55 ? new ExpantaNum("1e16") : new ExpantaNum("1e20");
+    if (antimatter.lt(ecx) || matter.lt(ecx)) return;
+    antimatter = antimatter.sub(ecx);
+    matter = matter.sub(ecx);
+  } else {
+    if (atoms.lt(elemCostNum(i))) return;
+    atoms = atoms.sub(elemCostNum(i));
+  }
   elemBought[i - 1] = true;
   if (i === 1 && !hBonus) { for (var vi = 0; vi < lv.length; vi++) lv[vi] += 20; hBonus = true; }
   if (i === 48) money = money.add(10);
+  if (i === 54) {
+    matter = new ExpantaNum(0);
+    antimatter = new ExpantaNum(10);
+    for (var md = 0; md < matterDims.length; md++) matterDims[md] = new ExpantaNum(0);
+    for (var ad = 0; ad < antimatterDims.length; ad++) antimatterDims[ad] = new ExpantaNum(0);
+    dim9count = 0;
+  }
+  if (i === 58) legacyUpgs[2] = true;
 }
 
 function activateChallenge(c) {
   if (chalActive) return;
+  if (c >= 1 && !legacyUpgs[1]) return;
   chalActive = true;
+  chalIdx = c;
   voidAmt = new ExpantaNum(0);
   quarks = new ExpantaNum(0);
   for (var i = 0; i < lv.length; i++) lv[i] = 0;
@@ -1036,6 +1209,7 @@ function completeChallenge(c) {
   if (!chalActive || chalDone[c]) return;
   if (voidAmt.lt(CHAL_GOALS[c])) return;
   chalActive = false;
+  chalIdx = 0;
   chalDone[c] = true;
   voidAmt = new ExpantaNum(0);
   quarks = new ExpantaNum(0);
@@ -1047,6 +1221,7 @@ function completeChallenge(c) {
 function forfeitChallenge(c) {
   if (!chalActive) return;
   chalActive = false;
+  chalIdx = 0;
   voidAmt = new ExpantaNum(0);
   quarks = new ExpantaNum(0);
   for (var i = 0; i < lv.length; i++) lv[i] = 0;
@@ -1077,6 +1252,7 @@ document.getElementById("qb20").onclick = function () { buyQuark(20); };
 document.getElementById("qb21").onclick = function () { buyQuark(21); };
 document.getElementById("qb22").onclick = function () { buyQuark(22); };
 document.getElementById("qb23").onclick = function () { buyQuark(23); };
+document.getElementById("qb24").onclick = function () { buyQuark(24); };
 document.getElementById("qreset").onclick = doQuarkReset;
 
 var hardResetting = false;
@@ -1090,7 +1266,7 @@ document.getElementById("hardreset").onclick = function () {
 };
 
 document.getElementById("export").onclick = function () {
-  document.getElementById("savebox").value = encodeSave({ v: voidAmt.toString(), k: quarks.toString(), a: atoms.toString(), ar: atomResets, l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6], s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18], c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: red.toString(), gr: green.toString(), bl: blue.toString(), tp: ttparts.toString(), tm: timeBought, cdst: cosmicDust.toString(), sb: spaceB, sl: spaceLvl, cm: comets.toString(), cu: cometUpg, sn: supernova.toString(), snT: snTotal.toString(), snm: snMilestones, snu: snUpg, cl: sane(clicks).toString(), cll: clickerLvl, clk: perks, clv: perkLvl, clu: clickUpgLvl, mo: sane(money).toString(), ty: tyUpgs });
+  document.getElementById("savebox").value = encodeSave({ v: voidAmt.toString(), k: quarks.toString(), a: atoms.toString(), ar: atomResets, l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6], s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18], c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, ci: chalIdx, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: red.toString(), gr: green.toString(), bl: blue.toString(), tp: ttparts.toString(), tm: timeBought, cdst: cosmicDust.toString(), sb: spaceB, sl: spaceLvl, cm: comets.toString(), cu: cometUpg, sn: supernova.toString(), snT: snTotal.toString(), snm: snMilestones, snu: snUpg, cl: sane(clicks).toString(), cll: clickerLvl, clk: perks, clv: perkLvl, clu: clickUpgLvl, mo: sane(money).toString(), ty: tyUpgs, mu: matUpgs, ma: sane(matter).toString(), am: sane(antimatter).toString(), mds: matterDims.map(function (x) { return x.toString(); }), ads: antimatterDims.map(function (x) { return x.toString(); }), msi: matSide, d9: dim9count, le: sane(legacyEnergy).toString(), lg: legacyUpgs, u20: upg20Bought, eg: engineCount });
   document.getElementById("savepop-title").textContent = "Your save (copy this):";
   document.getElementById("savepopup").style.display = "";
   var box = document.getElementById("savebox");
@@ -1137,6 +1313,7 @@ document.getElementById("savepop-ok").onclick = function () {
     if (d.eb) for (var j = 0; j < elemBought.length; j++) elemBought[j] = !!d.eb[j];
     maxReset = !!d.mr;
     chalActive = !!d.ca;
+    if (d.ci !== undefined) chalIdx = +(d.ci) || 0;
     if (d.cd) for (var j = 0; j < chalDone.length; j++) chalDone[j] = !!d.cd[j];
     if (d.cr) for (var j = 0; j < chalReward.length; j++) chalReward[j] = !!d.cr[j];
     keptBase7 = d.b7 || 0;
@@ -1165,6 +1342,17 @@ document.getElementById("savepop-ok").onclick = function () {
     if (d.clu) for (var cku2 = 0; cku2 < clickUpgLvl.length; cku2++) clickUpgLvl[cku2] = d.clu[cku2] || 0;
     money = d.mo !== undefined ? sane(new ExpantaNum(d.mo)) : new ExpantaNum(0);
     if (d.ty) for (var tyi = 0; tyi < tyUpgs.length; tyi++) tyUpgs[tyi] = !!d.ty[tyi];
+    if (d.mu) for (var mui = 0; mui < matUpgs.length; mui++) matUpgs[mui] = !!d.mu[mui];
+    matter = d.ma !== undefined ? sane(new ExpantaNum(d.ma)) : new ExpantaNum(0);
+    antimatter = d.am !== undefined ? sane(new ExpantaNum(d.am)) : new ExpantaNum(0);
+    if (d.mds) for (var mdi = 0; mdi < matterDims.length; mdi++) matterDims[mdi] = d.mds[mdi] !== undefined ? sane(new ExpantaNum(d.mds[mdi])) : new ExpantaNum(0);
+    if (d.ads) for (var adi = 0; adi < antimatterDims.length; adi++) antimatterDims[adi] = d.ads[adi] !== undefined ? sane(new ExpantaNum(d.ads[adi])) : new ExpantaNum(0);
+    matSide = d.msi || "matter";
+    dim9count = d.d9 || 0;
+    legacyEnergy = d.le !== undefined ? sane(new ExpantaNum(d.le)) : new ExpantaNum(0);
+    if (d.lg) for (var lgi = 0; lgi < legacyUpgs.length; lgi++) legacyUpgs[lgi] = !!d.lg[lgi];
+    upg20Bought = !!d.u20;
+    engineCount = d.eg || 0;
     if (elemBought[0] && !hBonus) {
       for (var vi = 0; vi < lv.length; vi++) lv[vi] += 20;
       hBonus = true;
@@ -1190,6 +1378,9 @@ function showTab(t) {
   document.getElementById("mlist").style.display = t === "miles" ? "" : "none";
   document.getElementById("clicklist").style.display = t === "clicker" ? "" : "none";
   document.getElementById("tylist").style.display = t === "tycoon" ? "" : "none";
+  document.getElementById("matlist").style.display = t === "material" ? "" : "none";
+  document.getElementById("uplist").style.display = t === "upgradables" ? "" : "none";
+  document.getElementById("leglist").style.display = t === "legacy" ? "" : "none";
   if (t === "elements") document.body.style.background = "darkslategray";
   else if (t === "quarks") document.body.style.background = "darkslateblue";
   else if (t === "challenges") document.body.style.background = "darkorchid";
@@ -1199,6 +1390,9 @@ function showTab(t) {
   else if (t === "space") document.body.style.background = "midnightblue";
   else if (t === "clicker") document.body.style.background = "darkslategray";
   else if (t === "tycoon") document.body.style.background = "darkgoldenrod";
+  else if (t === "material") document.body.style.background = "darkslategray";
+  else if (t === "upgradables") document.body.style.background = "teal";
+  else if (t === "legacy") document.body.style.background = "darkred";
   else document.body.style.background = "darkblue";
 }
 
@@ -1246,6 +1440,30 @@ document.getElementById("tytab").onclick = function () {
   if (elemBought[47]) showTab(curTab === "tycoon" ? "main" : "tycoon");
 };
 
+document.getElementById("mattab").onclick = function () {
+  if (elemBought[53]) showTab(curTab === "material" ? "main" : "material");
+};
+document.getElementById("uptab").onclick = function () {
+  if (elemBought[55]) showTab(curTab === "upgradables" ? "main" : "upgradables");
+};
+document.getElementById("letab").onclick = function () {
+  if (matUpgs[2]) showTab(curTab === "legacy" ? "main" : "legacy");
+};
+document.getElementById("levu1").onclick = function () {
+  if (legacyUpgs[0]) return;
+  if (legacyEnergy.lt(10)) return;
+  legacyEnergy = legacyEnergy.sub(10);
+  legacyUpgs[0] = true;
+  save();
+};
+document.getElementById("levu2").onclick = function () {
+  if (legacyUpgs[1]) return;
+  if (legacyEnergy.lt(1000)) return;
+  legacyEnergy = legacyEnergy.sub(1000);
+  legacyUpgs[1] = true;
+  save();
+};
+
 document.getElementById("clickbtn").onclick = function () {
   clicks = clicks.add(clickAmount());
 };
@@ -1282,6 +1500,18 @@ document.getElementById("ty2").onclick = function () {
 document.getElementById("ty3").onclick = function () {
   buyTycoonUpg(3);
 };
+document.getElementById("matswitch").onclick = function () {
+  switchMatSide();
+};
+document.getElementById("matu1").onclick = function () {
+  buyMatUpg(1);
+};
+document.getElementById("matu2").onclick = function () {
+  buyMatUpg(2);
+};
+document.getElementById("matu3").onclick = function () {
+  buyMatUpg(3);
+};
 
 document.getElementById("atomreset").onclick = doAtomReset;
 
@@ -1309,7 +1539,8 @@ var QUARK_DESCS = [
   "Void gain ^1.7 + Quarks ^1.3 + Achievement boost x10 + formula ^10",
   "x1.79T Quarks",
   "x1e68 Quarks",
-  "x100 Atoms, Void ^1.5, Quarks ^1.5"
+  "x100 Atoms, Void ^1.5, Quarks ^1.5",
+  "Unlocks Legacy Upgrade II, x50 Legacy Energy"
 ];
 
 function loop(now) {
@@ -1364,6 +1595,7 @@ function loop(now) {
   if (elemBought[25]) gain = gain.pow(100000000000);
   if (elemBought[26] && blue.gt(1)) gain = gain.pow(blue.log10().div(3).pow(1.5));
   if (elemBought[33]) gain = gain.pow(new ExpantaNum("1e100"));
+  if (upg20Bought) gain = gain.mul(UP20_VOID_MULT);
   if (chalActive) gain = gain.pow(0.0000001);
 
   voidAmt = voidAmt.add(gain.mul(dt));
@@ -1376,10 +1608,11 @@ function loop(now) {
     }
   }
   if (elemBought[2]) {
-    for (var qi = 1; qi <= 23; qi++) {
+    for (var qi = 1; qi <= 24; qi++) {
       if (quarkUpg[qi - 1]) continue;
       if ((qi === 1 && quarkUpg[1]) || (qi === 2 && quarkUpg[0])) continue;
-      if (quarks.gte(QUARK_COST[qi - 1])) buyQuark(qi);
+      if (qi === 24 && !upg20Bought) continue;
+      if (quarks.gte(qi === 24 ? UP24_COST : QUARK_COST[qi - 1])) buyQuark(qi);
     }
   }
   if (elemBought[1]) quarks = quarks.add(quarkGain().mul(10).mul(dt));
@@ -1437,6 +1670,31 @@ function loop(now) {
     for (var cua2 = 1; cua2 <= COMET_UPGRADES.length; cua2++) buyCometUpg(cua2);
     supernova = supernova.add(snGainRaw().mul(10).mul(dt));
   }
+  if (elemBought[53]) {
+    var matBoost = matter.gt(1) ? matter.log10().div(2).max(new ExpantaNum(1)) : new ExpantaNum(1);
+    var antiBoost = antimatter.gt(1) ? antimatter.log10().div(2).max(new ExpantaNum(1)) : new ExpantaNum(1);
+    var dim9b = new ExpantaNum(2).pow(dim9count);
+    var matProdX = (elemBought[54] ? new ExpantaNum(100) : new ExpantaNum(1)).mul(elemBought[55] ? new ExpantaNum(1e6) : new ExpantaNum(1)).mul(matUpgs[0] ? new ExpantaNum(200) : new ExpantaNum(1));
+    var matEx = (matUpgs[1] ? 1.5 : 1) * (elemBought[56] ? 2 : 1) * (snUpg[4] ? 1.5 : 1);
+    var matCap = new ExpantaNum("1e3100");
+    if (elemBought[56]) {
+      for (var mab = 1; mab <= 8; mab++) buyMatterDim(mab);
+      buyMatterDim(9);
+      for (var aab = 1; aab <= 8; aab++) buyAntimatterDim(aab);
+    }
+    matter = matter.add(softcapGain(matterDims[0].mul(matBoost).mul(dim9b).mul(matProdX).mul(dt).pow(matEx), matCap));
+    matter = matter.add(softcapGain(antimatterDims[0].mul(antiBoost).mul(dim9b).mul(matProdX).mul(dt).pow(matEx), matCap));
+    antimatterDims[0] = antimatterDims[0].add(matterDims[0].mul(matBoost).mul(dim9b).mul(matProdX).mul(dt));
+    antimatterDims[1] = antimatterDims[1].add(matterDims[0].mul(matBoost).mul(dim9b).mul(matProdX).mul(dt));
+    antimatterDims[2] = antimatterDims[2].add(matterDims[0].mul(matBoost).mul(dim9b).mul(matProdX).mul(dt));
+    antimatterDims[3] = antimatterDims[3].add(matterDims[0].mul(matBoost).mul(dim9b).mul(matProdX).mul(dt));
+    for (var mp = 0; mp < 7; mp++) matterDims[mp] = matterDims[mp].add(matterDims[mp + 1].mul(dt));
+    antimatter = antimatter.add(softcapGain(antimatterDims[0].mul(antiBoost).mul(dim9b).mul(matProdX).mul(dt).pow(matEx), matCap));
+    for (var ap = 0; ap < 7; ap++) antimatterDims[ap] = antimatterDims[ap].add(antimatterDims[ap + 1].mul(dt));
+    matter = softcapGain(matter, matCap);
+    antimatter = softcapGain(antimatter, matCap);
+  }
+  if (matUpgs[2]) legacyEnergy = legacyEnergy.add(new ExpantaNum(1).mul(quarkUpg[23] ? 50 : 1).mul(legacyUpgs[1] ? 100 : 1).mul(elemBought[57] ? 100 : 1).mul(dt));
   if (elemBought[24]) buyInfMax();
   if (elemBought[26]) {
     red = red.mul(new ExpantaNum(10).pow(dt)).min(rgbCap());
@@ -1453,7 +1711,7 @@ function loop(now) {
   keptBase7 = new ExpantaNum(keptBase7).max(new ExpantaNum(0.05 * lv[6])).toNumber();
   keptBase8 = new ExpantaNum(keptBase8).max(new ExpantaNum(0.005 * lv[7])).toNumber();
   checkAchs();
-  if (chalActive) completeChallenge(0);
+  if (chalActive) completeChallenge(chalIdx);
   if (!elemBought[5] && quarks.gt(VOID_CAP)) quarks = new ExpantaNum(VOID_CAP);
   if (!hardResetting) save();
 
@@ -1471,6 +1729,14 @@ function loop(now) {
       UPG_LABEL[i - 1] + " Void Upgrade: Level " + lv[i - 1] + "/" + upgMax(i) +
       ", Cost: " + (maxed ? "MAX" : fmt(c));
     document.getElementById("buy" + i).disabled = maxed || voidAmt.lt(c);
+  }
+  var u20d = document.getElementById("upg20");
+  var u20b = document.getElementById("buy20");
+  u20d.style.display = legacyUpgs[0] ? "" : "none";
+  u20b.style.display = legacyUpgs[0] ? "" : "none";
+  if (legacyUpgs[0]) {
+    u20d.textContent = "Legacy Void Upgrade: " + (upg20Bought ? "BOUGHT - Quarks ^1e1e308, Void x1e1e1e100DTg" : "Quarks ^1e1e308, Void x1e1e1e100DTg\nCost: 1e1e15DTg");
+    u20b.disabled = upg20Bought || voidAmt.lt(UP20_COST);
   }
 
   if (curTab === "achs") {
@@ -1493,12 +1759,13 @@ function loop(now) {
     var atomBtn = document.getElementById("atomreset");
     atomBtn.style.display = quarks.gte(VOID_CAP) ? "" : "none";
     atomBtn.disabled = ag.lte(0);
-    for (var qi = 1; qi <= 23; qi++) {
+    for (var qi = 1; qi <= 24; qi++) {
       var btn = document.getElementById("qb" + qi);
       var owned = quarkUpg[qi - 1];
-      var locked = (qi === 1 && quarkUpg[1]) || (qi === 2 && quarkUpg[0]);
-      btn.textContent = QUARK_DESCS[qi - 1] + (owned ? " (Bought)" : locked ? " (Locked)" : " — Requires: " + fmt(new ExpantaNum(QUARK_COST[qi - 1])) + " Quarks");
-      btn.disabled = owned || locked || quarks.lt(QUARK_COST[qi - 1]);
+      var locked = (qi === 1 && quarkUpg[1]) || (qi === 2 && quarkUpg[0]) || (qi === 24 && !upg20Bought);
+      btn.style.display = (qi === 24 && !upg20Bought) ? "none" : "";
+      btn.textContent = QUARK_DESCS[qi - 1] + (owned ? " (Bought)" : locked ? " (Locked)" : " — Requires: " + (qi === 24 ? fmt(UP24_COST) : fmt(new ExpantaNum(QUARK_COST[qi - 1]))) + " Quarks");
+      btn.disabled = owned || locked || quarks.lt(qi === 24 ? UP24_COST : new ExpantaNum(QUARK_COST[qi - 1]));
     }
   }
 
@@ -1509,7 +1776,7 @@ function loop(now) {
       var chtml = "<div style='font-size:20px;margin-bottom:10px'>Challenges</div>";
       chtml += "<div id='cprog' style='color:#ffd700'></div><br>";
       for (var cc = 0; cc < CHAL_GOALS.length; cc++) {
-        chtml += "<div style='margin-bottom:8px'>Challenge " + (cc + 1) + ": " + CHAL_DESCS[cc] + "<br>Status: <span id='cs" + cc + "'>Not done</span><br>";
+        chtml += "<div id='ch" + cc + "' style='margin-bottom:8px'>Challenge " + (cc + 1) + ": " + CHAL_DESCS[cc] + "<br>Status: <span id='cs" + cc + "'>Not done</span><br>";
         chtml += "<button id='cb" + cc + "'>Activate</button> ";
         chtml += "<button id='xf" + cc + "' style='display:none'>Forfeit</button></div>";
       }
@@ -1517,19 +1784,22 @@ function loop(now) {
       for (var cc = 0; cc < CHAL_GOALS.length; cc++) {
         (function (idx) {
           document.getElementById("cb" + idx).onclick = function () {
-            if (chalActive) completeChallenge(idx); else activateChallenge(idx);
+            if (chalActive) completeChallenge(chalIdx); else activateChallenge(idx);
           };
           document.getElementById("xf" + idx).onclick = function () { forfeitChallenge(idx); };
         })(cc);
       }
     }
     var progEl = document.getElementById("cprog");
-    progEl.textContent = chalActive ? ("Challenge active! Progress: " + fmt(voidAmt) + " / " + fmt(new ExpantaNum(CHAL_GOALS[0]))) : "";
+    progEl.textContent = chalActive ? ("Challenge active! Progress: " + fmt(voidAmt) + " / " + fmt(new ExpantaNum(CHAL_GOALS[chalIdx]))) : "";
     for (var cc = 0; cc < CHAL_GOALS.length; cc++) {
+      var unlocked = cc === 0 || !!legacyUpgs[1];
+      document.getElementById("ch" + cc).style.display = unlocked ? "" : "none";
       var sEl = document.getElementById("cs" + cc);
-      sEl.textContent = chalDone[cc] ? "Completed" : (chalActive && cc === 0 ? "Active" : "Not done");
+      sEl.textContent = chalDone[cc] ? "Completed" : (chalActive && cc === chalIdx ? "Active" : (!unlocked ? "Locked (buy Legacy Upgrade II)" : "Not done"));
       var cbEl = document.getElementById("cb" + cc);
       cbEl.style.display = chalActive ? "none" : "";
+      cbEl.disabled = !unlocked;
       cbEl.textContent = chalDone[cc] ? "Replay" : "Activate";
       document.getElementById("xf" + cc).style.display = chalActive ? "" : "none";
     }
@@ -1577,9 +1847,11 @@ function loop(now) {
       tlist.innerHTML = "<div style='font-size:20px;margin-bottom:10px'>Time Travelling</div>" +
         "<div id='ttinfo'></div><br>" +
         "<button id='ttbuy'>Buy Time Travel Part</button>" +
-        "<br><br><div id='tinfo'></div><br><button id='tbuy'>Buy Time</button>";
+        "<br><br><div id='tinfo'></div><br><button id='tbuy'>Buy Time</button>" +
+        "<br><br><div id='engsec' style='display:none'><div id='enginfo'></div><br><button id='engbuy'>Buy Engine</button></div>";
       document.getElementById("ttbuy").onclick = buyTT;
       document.getElementById("tbuy").onclick = buyTime;
+      document.getElementById("engbuy").onclick = buyEngine;
     }
     var tc = ttCost();
     document.getElementById("ttinfo").textContent = "Parts: " + ttparts.toString() + ", Next part cost: " + fmt(tc) + ", Atoms ^1.1 per part, current boost: ^" + fmt(new ExpantaNum(1.1).pow(ttparts));
@@ -1590,6 +1862,14 @@ function loop(now) {
     if (showTime) {
       document.getElementById("tinfo").textContent = "Time: " + (timeBought ? "BOUGHT" : "Not bought") + " (one-time, Atoms ^1.05), Cost: " + fmt(new ExpantaNum("1e6791"));
       document.getElementById("tbuy").disabled = timeBought || atoms.lt(new ExpantaNum("1e6791"));
+    }
+    var showEngine = legacyUpgs[2];
+    document.getElementById("engsec").style.display = showEngine ? "" : "none";
+    if (showEngine) {
+      var ec = engineCost();
+      document.getElementById("enginfo").textContent = "Engine: " + engineCount + "/4\nAtom gain ^" + fmt(new ExpantaNum(100).pow(engineCount)) + ", Next cost: " + fmt(ec) + " Atoms (cost scales by ^100K)";
+      document.getElementById("engbuy").disabled = engineCount >= 4 || atoms.lt(ec);
+      document.getElementById("engbuy").textContent = engineCount >= 4 ? "Max Engines" : "Buy Engine";
     }
   }
 
@@ -1842,6 +2122,107 @@ function loop(now) {
     }
   }
 
+  if (curTab === "material" && elemBought[53]) {
+    var matBoostR = matter.gt(1) ? matter.log10().div(2).max(new ExpantaNum(1)) : new ExpantaNum(1);
+    var antiBoostR = antimatter.gt(1) ? antimatter.log10().div(2).max(new ExpantaNum(1)) : new ExpantaNum(1);
+    document.getElementById("matamt").textContent = "Matter: " + fmt(matter) + " | Antimatter: " + fmt(antimatter) + " | Matter Boost (log100 Antimatter): x" + fmt(matBoostR) + " | Antimatter Boost (log100 Matter): x" + fmt(antiBoostR) + " | Dim 9: x" + fmt(new ExpantaNum(2).pow(dim9count));
+    document.getElementById("matswitch").textContent = "Switch to " + (matSide === "matter" ? "Antimatter" : "Matter");
+    var mdDiv = document.getElementById("matdims");
+    if (curMatSideShown !== matSide) {
+      curMatSideShown = matSide;
+      var h = "<div style='font-size:16px;font-weight:bold'>" + (matSide === "matter" ? "Matter Dimensions" : "Antimatter Dimensions") + "</div>";
+      if (matSide === "matter") {
+        for (var mi = 1; mi <= 8; mi++) {
+          h += "<div style='display:flex;justify-content:center;margin:4px'><button id='matd" + mi + "' style='width:280px;height:34px;border:2px solid #fff;color:#fff;cursor:pointer;font-family:inherit'></button></div>";
+        }
+        h += "<div style='display:flex;justify-content:center;margin:4px'><button id='matd9' style='width:280px;height:52px;border:2px solid #fff;color:#fff;cursor:pointer;font-family:inherit'></button></div>";
+      } else {
+        for (var ai = 1; ai <= 8; ai++) {
+          h += "<div style='display:flex;justify-content:center;margin:4px'><button id='matd" + ai + "' style='width:280px;height:34px;border:2px solid #fff;color:#fff;cursor:pointer;font-family:inherit'></button></div>";
+        }
+      }
+      mdDiv.innerHTML = h;
+      for (var mi2 = 1; mi2 <= 8; mi2++) {
+        var mdb = document.getElementById("matd" + mi2);
+        if (!mdb) continue;
+        mdb.onclick = (function (n) {
+          return function () {
+            if (matSide === "matter") buyMatterDim(n);
+            else buyAntimatterDim(n);
+          };
+        })(mi2);
+      }
+      var m9b = document.getElementById("matd9");
+      if (m9b) m9b.onclick = function () { buyMatterDim(9); };
+    }
+    for (var mi3 = 1; mi3 <= 8; mi3++) {
+      var mdb3 = document.getElementById("matd" + mi3);
+      if (!mdb3) continue;
+      var costv3 = matSide === "matter" ? matDimCost(mi3) : antiDimCost(mi3);
+      var genTxt3 = matSide === "matter" ? (mi3 === 1 ? "Matter" : "Dim " + (mi3 - 1)) : (mi3 === 1 ? "Antimatter" : "Dim " + (mi3 - 1));
+      var cnt3 = matSide === "matter" ? fmt(matterDims[mi3 - 1]) : fmt(antimatterDims[mi3 - 1]);
+      var cur3 = matSide === "matter" ? matter : antimatter;
+      mdb3.textContent = "Dimension " + mi3 + ": " + cnt3 + " (generates " + genTxt3 + ")\nCost: " + fmt(costv3) + (matSide === "matter" ? " Matter" : " Antimatter");
+      if (cur3.gte(costv3)) { mdb3.disabled = false; mdb3.style.background = "#8b8b00"; }
+      else { mdb3.disabled = true; mdb3.style.background = "#b03030"; }
+    }
+    if (matSide === "matter") {
+      var m9 = document.getElementById("matd9");
+      if (m9) {
+        if (dim9count >= 4000) {
+          m9.textContent = "Dimension 9: " + dim9count + " bought (MAX)\nMatter & Antimatter x2 each";
+          m9.disabled = true;
+          m9.style.background = "#006400";
+        } else {
+          m9.textContent = "Dimension 9: " + dim9count + " bought\nMatter & Antimatter x2 each, Cost scales ^1.05\nCost: " + fmt(matDimCost(9)) + " Matter";
+          if (matter.gte(matDimCost(9))) { m9.disabled = false; m9.style.background = "#8b8b00"; }
+          else { m9.disabled = true; m9.style.background = "#b03030"; }
+        }
+      }
+    }
+  }
+
+  if (curTab === "upgradables" && elemBought[55]) {
+    document.getElementById("matupgamt").textContent = "Matter: " + fmt(matter) + " | Antimatter: " + fmt(antimatter);
+    var matUpgNames = ["Matter & Antimatter Upgrade I", "Matter & Antimatter Upgrade II", "Matter & Antimatter Upgrade III"];
+    var matUpgInfos = ["x200 Antimatter & Matter", "Antimatter & Matter ^1.5", "Unlocks the Legacy tab"];
+    var matUpgCostStrs = ["1De Antimatter", "10QaDc Matter", "1e5093 Antimatter"];
+    for (var muk = 1; muk <= 3; muk++) {
+      var mub = document.getElementById("matu" + muk);
+      var mcost = matUpgCost(muk);
+      mub.textContent = matUpgNames[muk - 1] + (matUpgs[muk - 1] ? " (BOUGHT)" : "") + ": " + matUpgInfos[muk - 1] + "\nCost: " + matUpgCostStrs[muk - 1];
+      var mcur = muk === 2 ? matter : antimatter;
+      if (matUpgs[muk - 1]) { mub.disabled = true; mub.style.background = "#006400"; }
+      else if (mcur.gte(mcost)) { mub.disabled = false; mub.style.background = "#8b8b00"; }
+      else { mub.disabled = true; mub.style.background = "#b03030"; }
+    }
+  }
+
+  if (curTab === "legacy" && matUpgs[2]) {
+    var levrate = new ExpantaNum(1).mul(quarkUpg[23] ? 50 : 1).mul(legacyUpgs[1] ? 100 : 1).mul(elemBought[57] ? 100 : 1);
+    document.getElementById("levamt").textContent = "Legacy Energy: " + fmt(legacyEnergy) + " (+" + fmt(levrate) + "/s)";
+    var lb1 = document.getElementById("levu1");
+    lb1.textContent = "We are so tutol" + (legacyUpgs[0] ? " (BOUGHT)" : "") + ": Unlocks a new Void upgrade\nCost: 10 LE";
+    if (legacyUpgs[0]) { lb1.disabled = true; lb1.style.background = "#006400"; }
+    else if (legacyEnergy.gte(10)) { lb1.disabled = false; lb1.style.background = "#8b8b00"; }
+    else { lb1.disabled = true; lb1.style.background = "#b03030"; }
+    var lb2 = document.getElementById("levu2");
+    lb2.style.display = quarkUpg[23] ? "" : "none";
+    if (quarkUpg[23]) {
+      lb2.textContent = "Legacy Power" + (legacyUpgs[1] ? " (BOUGHT)" : "") + ": x100 Legacy Energy\nCost: 1000 LE";
+      if (legacyUpgs[1]) { lb2.disabled = true; lb2.style.background = "#006400"; }
+      else if (legacyEnergy.gte(1000)) { lb2.disabled = false; lb2.style.background = "#8b8b00"; }
+      else { lb2.disabled = true; lb2.style.background = "#b03030"; }
+    }
+    var lb3 = document.getElementById("levu3");
+    lb3.style.display = elemBought[57] ? "" : "none";
+    if (elemBought[57]) {
+      lb3.textContent = "Legacy Upgrade III" + (legacyUpgs[2] ? " (UNLOCKED)" : "") + ": Unlocks the Engine\nUnlocked by Element 58";
+      lb3.disabled = true;
+      lb3.style.background = legacyUpgs[2] ? "#006400" : "#8b8b00";
+    }
+  }
+
   if (curTab === "tycoon" && elemBought[47]) {
     document.getElementById("moneyamt").textContent = "Money: " + fmt(money);
     var tyNames = ["Tycoon Upgrade I", "Tycoon Upgrade II", "Tycoon Upgrade III"];
@@ -1932,6 +2313,9 @@ function loop(now) {
   document.getElementById("mtab").style.display = snTotal.gt(0) ? "" : "none";
   document.getElementById("clicktab").style.display = snMilestones[2] ? "" : "none";
   document.getElementById("tytab").style.display = elemBought[47] ? "" : "none";
+document.getElementById("mattab").style.display = elemBought[53] ? "" : "none";
+document.getElementById("uptab").style.display = elemBought[55] ? "" : "none";
+document.getElementById("letab").style.display = matUpgs[2] ? "" : "none";
 
   requestAnimationFrame(loop);
 }
