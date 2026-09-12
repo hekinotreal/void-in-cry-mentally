@@ -126,6 +126,7 @@ body { background: darkblue; color: white; }
 <button id="levu1">Legacy Upgrade I</button>
 <button id="levu2" style="display:none">Legacy Upgrade II</button>
 <button id="levu3" style="display:none">Legacy Upgrade III</button>
+<button id="levu4" style="display:none">Legacy Upgrade IV</button>
 </div>
 <div id="einfo" style="position:fixed;display:none;background:#000;color:#fff;padding:6px 10px;z-index:100;pointer-events:none;white-space:pre;"></div>
 <script>
@@ -170,9 +171,19 @@ var curMatSideShown = "none";
 var dim9count = 0;
 var matUpgs = [false, false, false, false, false];
 var legacyEnergy = new ExpantaNum(0);
-var legacyUpgs = [false, false, false];
+var legacyUpgs = [false, false, false, false];
 var upg20Bought = false;
 var engineCount = 0;
+var cdUpg = false;
+var CDUPG_COST = new ExpantaNum(10).pow(new ExpantaNum("18e6"));
+function buyCDUpg() {
+  if (cdUpg) return;
+  if (!legacyUpgs[3]) return;
+  if (cosmicDust.lt(CDUPG_COST)) return;
+  cosmicDust = cosmicDust.sub(CDUPG_COST);
+  cdUpg = true;
+  save();
+}
 var ENGINE_COST = new ExpantaNum(10).pow(new ExpantaNum(1e149));
 function engineCost() { return ENGINE_COST.pow(new ExpantaNum(100000).pow(engineCount)); }
 function buyEngine() {
@@ -242,7 +253,7 @@ function save() {
     v: sane(voidAmt).toString(), k: sane(quarks).toString(), a: sane(atoms).toString(), ar: atomResets,
     l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6],
     s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18],
-c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, ci: chalIdx, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: sane(red).toString(), gr: sane(green).toString(), bl: sane(blue).toString(), tp: sane(ttparts).toString(), tm: timeBought, cdst: sane(cosmicDust).toString(), sb: spaceB, sl: spaceLvl, cm: sane(comets).toString(), cu: cometUpg, sn: sane(supernova).toString(), snT: sane(snTotal).toString(), snm: snMilestones, snu: snUpg, cl: sane(clicks).toString(), cll: clickerLvl, clk: perks, clv: perkLvl, clu: clickUpgLvl, mo: sane(money).toString(), ty: tyUpgs, mu: matUpgs, ma: sane(matter).toString(), am: sane(antimatter).toString(), mds: matterDims.map(function (x) { return x.toString(); }), ads: antimatterDims.map(function (x) { return x.toString(); }), msi: matSide, d9: dim9count, le: sane(legacyEnergy).toString(), lg: legacyUpgs, u20: upg20Bought, eg: engineCount
+c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, ci: chalIdx, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: sane(red).toString(), gr: sane(green).toString(), bl: sane(blue).toString(), tp: sane(ttparts).toString(), tm: timeBought, cdst: sane(cosmicDust).toString(), sb: spaceB, sl: spaceLvl, cm: sane(comets).toString(), cu: cometUpg, sn: sane(supernova).toString(), snT: sane(snTotal).toString(), snm: snMilestones, snu: snUpg, cl: sane(clicks).toString(), cll: clickerLvl, clk: perks, clv: perkLvl, clu: clickUpgLvl, mo: sane(money).toString(), ty: tyUpgs, mu: matUpgs, ma: sane(matter).toString(), am: sane(antimatter).toString(), mds: matterDims.map(function (x) { return x.toString(); }), ads: antimatterDims.map(function (x) { return x.toString(); }), msi: matSide, d9: dim9count, le: sane(legacyEnergy).toString(), lg: legacyUpgs, u20: upg20Bought, eg: engineCount, scu: cdUpg
   }));
 }
 
@@ -306,6 +317,7 @@ function load() {
     if (d.lg) for (var lgi = 0; lgi < legacyUpgs.length; lgi++) legacyUpgs[lgi] = !!d.lg[lgi];
 upg20Bought = !!d.u20;
     engineCount = d.eg || 0;
+    cdUpg = !!d.scu;
     hBonus = !!d.hb;
     if (elemBought[0] && !hBonus) {
       for (var vi2 = 0; vi2 < lv.length; vi2++) lv[vi2] += 20;
@@ -933,6 +945,7 @@ function cosmicDustRate() {
   if (elemBought[50]) r = r.pow(2);
   if (elemBought[51]) r = r.pow(2);
   if (snUpg[4]) r = r.pow(10);
+  if (cdUpg) r = r.pow(10);
   return r;
 }
 function buySpace(i) {
@@ -992,6 +1005,7 @@ function cometGainRaw() {
   if (elemBought[50]) g = g.pow(2);
   if (elemBought[51]) g = g.pow(2);
   if (snUpg[4]) g = g.pow(10);
+  if (cdUpg) g = g.pow(10);
   return g;
 }
 function cometGain() {
@@ -1036,6 +1050,7 @@ function snGainRaw() {
   if (elemBought[46]) sg = sg.mul(10);
   if (elemBought[48]) sg = sg.pow(1.3);
   if (elemBought[49]) sg = sg.pow(1.6);
+  if (cdUpg) sg = sg.pow(2);
   if (perkLvl[0] > 0) sg = sg.mul(new ExpantaNum(perkLvl[0] + 1));
   return sg;
 }
@@ -1266,7 +1281,7 @@ document.getElementById("hardreset").onclick = function () {
 };
 
 document.getElementById("export").onclick = function () {
-  document.getElementById("savebox").value = encodeSave({ v: voidAmt.toString(), k: quarks.toString(), a: atoms.toString(), ar: atomResets, l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6], s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18], c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, ci: chalIdx, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: red.toString(), gr: green.toString(), bl: blue.toString(), tp: ttparts.toString(), tm: timeBought, cdst: cosmicDust.toString(), sb: spaceB, sl: spaceLvl, cm: comets.toString(), cu: cometUpg, sn: supernova.toString(), snT: snTotal.toString(), snm: snMilestones, snu: snUpg, cl: sane(clicks).toString(), cll: clickerLvl, clk: perks, clv: perkLvl, clu: clickUpgLvl, mo: sane(money).toString(), ty: tyUpgs, mu: matUpgs, ma: sane(matter).toString(), am: sane(antimatter).toString(), mds: matterDims.map(function (x) { return x.toString(); }), ads: antimatterDims.map(function (x) { return x.toString(); }), msi: matSide, d9: dim9count, le: sane(legacyEnergy).toString(), lg: legacyUpgs, u20: upg20Bought, eg: engineCount });
+  document.getElementById("savebox").value = encodeSave({ v: voidAmt.toString(), k: quarks.toString(), a: atoms.toString(), ar: atomResets, l: lv[0], m: lv[1], n: lv[2], o: lv[3], p: lv[4], q: lv[5], r: lv[6], s: lv[7], t: lv[8], u: lv[9], w: lv[10], x: lv[11], y: lv[12], z: lv[13], aa: lv[14], ab: lv[15], ac: lv[16], ad: lv[17], ae: lv[18], c: quarkUpg, b7: keptBase7, b8: keptBase8, rc: resetCount, ch: achs, eb: elemBought, mr: maxReset, ca: chalActive, ci: chalIdx, cd: chalDone, cr: chalReward, hb: hBonus, il: infLvl, rd: red.toString(), gr: green.toString(), bl: blue.toString(), tp: ttparts.toString(), tm: timeBought, cdst: cosmicDust.toString(), sb: spaceB, sl: spaceLvl, cm: comets.toString(), cu: cometUpg, sn: supernova.toString(), snT: snTotal.toString(), snm: snMilestones, snu: snUpg, cl: sane(clicks).toString(), cll: clickerLvl, clk: perks, clv: perkLvl, clu: clickUpgLvl, mo: sane(money).toString(), ty: tyUpgs, mu: matUpgs, ma: sane(matter).toString(), am: sane(antimatter).toString(), mds: matterDims.map(function (x) { return x.toString(); }), ads: antimatterDims.map(function (x) { return x.toString(); }), msi: matSide, d9: dim9count, le: sane(legacyEnergy).toString(), lg: legacyUpgs, u20: upg20Bought, eg: engineCount, scu: cdUpg });
   document.getElementById("savepop-title").textContent = "Your save (copy this):";
   document.getElementById("savepopup").style.display = "";
   var box = document.getElementById("savebox");
@@ -1353,6 +1368,7 @@ document.getElementById("savepop-ok").onclick = function () {
     if (d.lg) for (var lgi = 0; lgi < legacyUpgs.length; lgi++) legacyUpgs[lgi] = !!d.lg[lgi];
     upg20Bought = !!d.u20;
     engineCount = d.eg || 0;
+    cdUpg = !!d.scu;
     if (elemBought[0] && !hBonus) {
       for (var vi = 0; vi < lv.length; vi++) lv[vi] += 20;
       hBonus = true;
@@ -1461,6 +1477,13 @@ document.getElementById("levu2").onclick = function () {
   if (legacyEnergy.lt(1000)) return;
   legacyEnergy = legacyEnergy.sub(1000);
   legacyUpgs[1] = true;
+  save();
+};
+document.getElementById("levu4").onclick = function () {
+  if (legacyUpgs[3]) return;
+  if (legacyEnergy.lt(5e8)) return;
+  legacyEnergy = legacyEnergy.sub(5e8);
+  legacyUpgs[3] = true;
   save();
 };
 
@@ -1694,7 +1717,7 @@ function loop(now) {
     matter = softcapGain(matter, matCap);
     antimatter = softcapGain(antimatter, matCap);
   }
-  if (matUpgs[2]) legacyEnergy = legacyEnergy.add(new ExpantaNum(1).mul(quarkUpg[23] ? 50 : 1).mul(legacyUpgs[1] ? 100 : 1).mul(elemBought[57] ? 100 : 1).mul(dt));
+  if (matUpgs[2]) legacyEnergy = legacyEnergy.add(new ExpantaNum(1).mul(quarkUpg[23] ? 50 : 1).mul(legacyUpgs[1] ? 100 : 1).mul(elemBought[57] ? 100 : 1).mul(engineCount >= 4 ? 100 : 1).mul(cdUpg ? 50 : 1).mul(dt));
   if (elemBought[24]) buyInfMax();
   if (elemBought[26]) {
     red = red.mul(new ExpantaNum(10).pow(dt)).min(rgbCap());
@@ -1878,13 +1901,15 @@ function loop(now) {
     if (!spl.dataset.init) {
       spl.dataset.init = "1";
       spl.innerHTML = "<div style='font-size:20px;margin-bottom:10px'>Space</div>" +
-        "<div id='sdust'></div><br><div id='stree'></div>";
+        "<div id='sdust'></div><br><div id='stree'></div>" +
+        "<br><div id='cdusec' style='display:none'><div id='cduinfo'></div><br><button id='cdubuy'>Buy Cosmic Dust Upgrade</button></div>";
       var streeEl = document.getElementById("stree");
       streeEl.onclick = function (e) {
         var t = e.target;
         while (t && t !== streeEl && !(t.id && /^spb\d+$/.test(t.id))) t = t.parentNode;
         if (t && t.id) buySpace(parseInt(t.id.slice(3), 10));
       };
+      document.getElementById("cdubuy").onclick = buyCDUpg;
     }
     document.getElementById("sdust").textContent = "Cosmic Dust: " + fmt(cosmicDust) + (spaceB[1] ? " (+" + fmt(cosmicDustRate()) + "/s)" : " (no generation - buy \"A new beginning\" to start)");
     var tree = document.getElementById("stree");
@@ -1959,6 +1984,19 @@ function loop(now) {
       }
       tree.innerHTML = thtml;
     }
+  }
+
+  if (curTab === "space" && legacyUpgs[3]) {
+    var cduEl = document.getElementById("cdusec");
+    cduEl.style.display = "";
+    document.getElementById("cduinfo").textContent = "Cosmic Dust Upgrade" + (cdUpg ? " (BOUGHT)" : "") + ": Space ^10, Supernova ^2, x50 Legacy Energy";
+      var cdb = document.getElementById("cdubuy");
+      if (cdUpg) { cdb.disabled = true; cdb.style.background = "#006400"; }
+      else if (cosmicDust.gte(CDUPG_COST)) { cdb.disabled = false; cdb.style.background = "#8b8b00"; }
+      else { cdb.disabled = true; cdb.style.background = "#b03030"; }
+      cdb.textContent = cdUpg ? "Bought" : "Buy Cosmic Dust Upgrade (Cost: " + fmt(CDUPG_COST) + " Cosmic Dust)";
+  } else if (curTab === "space") {
+    document.getElementById("cdusec").style.display = "none";
   }
 
   if (curTab === "space" && (spaceB[14] || comets.gt(0))) {
@@ -2199,7 +2237,7 @@ function loop(now) {
   }
 
   if (curTab === "legacy" && matUpgs[2]) {
-    var levrate = new ExpantaNum(1).mul(quarkUpg[23] ? 50 : 1).mul(legacyUpgs[1] ? 100 : 1).mul(elemBought[57] ? 100 : 1);
+    var levrate = new ExpantaNum(1).mul(quarkUpg[23] ? 50 : 1).mul(legacyUpgs[1] ? 100 : 1).mul(elemBought[57] ? 100 : 1).mul(engineCount >= 4 ? 100 : 1).mul(cdUpg ? 50 : 1);
     document.getElementById("levamt").textContent = "Legacy Energy: " + fmt(legacyEnergy) + " (+" + fmt(levrate) + "/s)";
     var lb1 = document.getElementById("levu1");
     lb1.textContent = "We are so tutol" + (legacyUpgs[0] ? " (BOUGHT)" : "") + ": Unlocks a new Void upgrade\nCost: 10 LE";
@@ -2220,6 +2258,14 @@ function loop(now) {
       lb3.textContent = "Legacy Upgrade III" + (legacyUpgs[2] ? " (UNLOCKED)" : "") + ": Unlocks the Engine\nUnlocked by Element 58";
       lb3.disabled = true;
       lb3.style.background = legacyUpgs[2] ? "#006400" : "#8b8b00";
+    }
+    var lb4 = document.getElementById("levu4");
+    lb4.style.display = engineCount >= 4 ? "" : "none";
+    if (engineCount >= 4) {
+      lb4.textContent = "Legacy Upgrade IV" + (legacyUpgs[3] ? " (BOUGHT)" : "") + ": Unlocks a new Cosmic Dust Upgrade\nCost: 500M LE";
+      if (legacyUpgs[3]) { lb4.disabled = true; lb4.style.background = "#006400"; }
+      else if (legacyEnergy.gte(5e8)) { lb4.disabled = false; lb4.style.background = "#8b8b00"; }
+      else { lb4.disabled = true; lb4.style.background = "#b03030"; }
     }
   }
 
