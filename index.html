@@ -173,8 +173,8 @@ var legacyEnergy = new ExpantaNum(0);
 var legacyUpgs = [false, false, false];
 var upg20Bought = false;
 var engineCount = 0;
-var ENGINE_COST = new ExpantaNum(10).pow(new ExpantaNum(10).pow(new ExpantaNum("1e159")));
-function engineCost() { return ENGINE_COST.pow(new ExpantaNum(100000).pow(engineCount)); }
+var ENGINE_COST = new ExpantaNum(10).pow(new ExpantaNum(1e149));
+function engineCost() { return ENGINE_COST; }
 function buyEngine() {
   if (engineCount >= 4) return;
   var ec = engineCost();
@@ -1867,7 +1867,7 @@ function loop(now) {
     document.getElementById("engsec").style.display = showEngine ? "" : "none";
     if (showEngine) {
       var ec = engineCost();
-      document.getElementById("enginfo").textContent = "Engine: " + engineCount + "/4\nAtom gain ^" + fmt(new ExpantaNum(100).pow(engineCount)) + ", Next cost: " + fmt(ec) + " Atoms (cost scales by ^100K)";
+      document.getElementById("enginfo").textContent = "Engine: " + engineCount + "/4\nAtom gain ^" + fmt(new ExpantaNum(100).pow(engineCount)) + ", Next cost: " + fmt(ec) + " Atoms";
       document.getElementById("engbuy").disabled = engineCount >= 4 || atoms.lt(ec);
       document.getElementById("engbuy").textContent = engineCount >= 4 ? "Max Engines" : "Buy Engine";
     }
