@@ -128,6 +128,7 @@ body { background: darkblue; color: white; }
 <button id="levu3" style="display:none">Legacy Upgrade III</button>
 <button id="levu4" style="display:none">Legacy Upgrade IV</button>
 <button id="levu5" style="display:none">Legacy Upgrade V</button>
+<button id="levu6" style="display:none">Legacy Upgrade VI</button>
 </div>
 <div id="einfo" style="position:fixed;display:none;background:#000;color:#fff;padding:6px 10px;z-index:100;pointer-events:none;white-space:pre;"></div>
 <script>
@@ -172,7 +173,7 @@ var curMatSideShown = "none";
 var dim9count = 0;
 var matUpgs = [false, false, false, false, false];
 var legacyEnergy = new ExpantaNum(0);
-var legacyUpgs = [false, false, false, false, false];
+var legacyUpgs = [false, false, false, false, false, false];
 var upg20Bought = false;
 var engineCount = 0;
 var cdUpg = false;
@@ -580,6 +581,7 @@ function atomGain() {
   if (tyUpgs[2]) g = g.pow(1.1);
   if (elemBought[50]) g = g.pow(2);
   if (elemBought[51]) g = g.pow(2);
+  if (legacyUpgs[5]) g = g.pow(new ExpantaNum(1e17));
   return g.floor().max(new ExpantaNum(1));
 }
 
@@ -949,6 +951,7 @@ function cosmicDustRate() {
   if (cdUpg) r = r.pow(10);
   if (cometUpg[10]) r = r.pow(100);
   if (snUpg[5]) r = r.pow(10000);
+  if (legacyUpgs[5]) r = r.pow(1e8);
   return r;
 }
 function buySpace(i) {
@@ -1012,6 +1015,7 @@ function cometGainRaw() {
   if (cdUpg) g = g.pow(10);
   if (cometUpg[10]) g = g.pow(100);
   if (snUpg[5]) g = g.pow(10000);
+  if (legacyUpgs[5]) g = g.pow(1e8);
   return g;
 }
 function cometGain() {
@@ -1501,6 +1505,13 @@ document.getElementById("levu5").onclick = function () {
   if (legacyEnergy.lt(1e13)) return;
   legacyEnergy = legacyEnergy.sub(1e13);
   legacyUpgs[4] = true;
+  save();
+};
+document.getElementById("levu6").onclick = function () {
+  if (legacyUpgs[5]) return;
+  if (legacyEnergy.lt(5e20)) return;
+  legacyEnergy = legacyEnergy.sub(5e20);
+  legacyUpgs[5] = true;
   save();
 };
 
@@ -2303,6 +2314,14 @@ if (curTab === "space" && legacyUpgs[3]) {
       if (legacyUpgs[4]) { lb5.disabled = true; lb5.style.background = "#006400"; }
       else if (legacyEnergy.gte(1e13)) { lb5.disabled = false; lb5.style.background = "#8b8b00"; }
       else { lb5.disabled = true; lb5.style.background = "#b03030"; }
+    }
+    var lb6 = document.getElementById("levu6");
+    lb6.style.display = snUpg[5] ? "" : "none";
+    if (snUpg[5]) {
+      lb6.textContent = "Legacy Upgrade VI" + (legacyUpgs[5] ? " (BOUGHT)" : "") + ": Atoms ^100Qa, Space ^100M\nCost: 500Qt LE";
+      if (legacyUpgs[5]) { lb6.disabled = true; lb6.style.background = "#006400"; }
+      else if (legacyEnergy.gte(5e20)) { lb6.disabled = false; lb6.style.background = "#8b8b00"; }
+      else { lb6.disabled = true; lb6.style.background = "#b03030"; }
     }
   }
 
