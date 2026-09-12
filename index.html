@@ -645,7 +645,7 @@ function elemCostNum(i) {
   if (i === 55) return new ExpantaNum("1e16");
   if (i === 56) return new ExpantaNum("1e20");
   if (i === 57) return new ExpantaNum("1e72");
-  if (i === 58) return new ExpantaNum(10).pow(new ExpantaNum(10).pow(new ExpantaNum("1e159")));
+  if (i === 58) return new ExpantaNum(10).pow(new ExpantaNum(1e149));
   if (!INF_COST) INF_COST = new ExpantaNum(Infinity);
   return INF_COST;
 }
@@ -708,7 +708,7 @@ function elemCostStr(i) {
   if (i === 55) return "10Qa Antimatter & Matter";
   if (i === 56) return "100Qt Antimatter & Matter";
   if (i === 57) return "TVg Antimatter";
-  if (i === 58) return "1e1DQig Atoms";
+  if (i === 58) return "1e1e149 Atoms";
   return "1J10";
 }
 var ELEM_EFFECT = [
