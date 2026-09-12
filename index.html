@@ -174,7 +174,7 @@ var legacyUpgs = [false, false, false];
 var upg20Bought = false;
 var engineCount = 0;
 var ENGINE_COST = new ExpantaNum(10).pow(new ExpantaNum(1e149));
-function engineCost() { return ENGINE_COST; }
+function engineCost() { return ENGINE_COST.pow(new ExpantaNum(100000).pow(engineCount)); }
 function buyEngine() {
   if (engineCount >= 4) return;
   var ec = engineCost();
