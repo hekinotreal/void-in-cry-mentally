@@ -1902,14 +1902,19 @@ function loop(now) {
       spl.dataset.init = "1";
       spl.innerHTML = "<div style='font-size:20px;margin-bottom:10px'>Space</div>" +
         "<div id='sdust'></div><br><div id='stree'></div>" +
-        "<br><div id='cdusec' style='display:none'><div id='cduinfo'></div><br><button id='cdubuy'>Buy Cosmic Dust Upgrade</button></div>";
+        "<br><div id='cdusec' style='display:none'></div>";
       var streeEl = document.getElementById("stree");
       streeEl.onclick = function (e) {
         var t = e.target;
         while (t && t !== streeEl && !(t.id && /^spb\d+$/.test(t.id))) t = t.parentNode;
         if (t && t.id) buySpace(parseInt(t.id.slice(3), 10));
       };
-      document.getElementById("cdubuy").onclick = buyCDUpg;
+      var cduEsec = document.getElementById("cdusec");
+      cduEsec.onclick = function (e) {
+        var t = e.target;
+        while (t && t !== cduEsec && t.id !== "cdubuy") t = t.parentNode;
+        if (t && t.id === "cdubuy") buyCDUpg();
+      };
     }
     document.getElementById("sdust").textContent = "Cosmic Dust: " + fmt(cosmicDust) + (spaceB[1] ? " (+" + fmt(cosmicDustRate()) + "/s)" : " (no generation - buy \"A new beginning\" to start)");
     var tree = document.getElementById("stree");
@@ -1986,15 +1991,14 @@ function loop(now) {
     }
   }
 
-  if (curTab === "space" && legacyUpgs[3]) {
-    var cduEl = document.getElementById("cdusec");
-    cduEl.style.display = "";
-    document.getElementById("cduinfo").textContent = "Cosmic Dust Upgrade" + (cdUpg ? " (BOUGHT)" : "") + ": Space ^10, Supernova ^2, x50 Legacy Energy";
-      var cdb = document.getElementById("cdubuy");
-      if (cdUpg) { cdb.disabled = true; cdb.style.background = "#006400"; }
-      else if (cosmicDust.gte(CDUPG_COST)) { cdb.disabled = false; cdb.style.background = "#8b8b00"; }
-      else { cdb.disabled = true; cdb.style.background = "#b03030"; }
-      cdb.textContent = cdUpg ? "Bought" : "Buy Cosmic Dust Upgrade (Cost: " + fmt(CDUPG_COST) + " Cosmic Dust)";
+if (curTab === "space" && legacyUpgs[3]) {
+    var cdsec = document.getElementById("cdusec");
+    cdsec.style.display = "";
+    var cdbg = cdUpg ? "#006400" : (cosmicDust.gte(CDUPG_COST) ? "#8b8b00" : "#b03030");
+    cdsec.innerHTML = "<div style='display:flex;justify-content:center'><button id='cdubuy' style='width:240px;height:88px;border:2px solid #fff;background:" + cdbg + ";color:#fff;cursor:pointer;font-family:inherit;padding:6px'>" +
+      "<div style='font-size:15px;font-weight:bold'>" + (cdUpg ? "Cosmic Dust Upgrade (BOUGHT)" : "Cosmic Dust Upgrade") + "</div>" +
+      "<div style='font-size:11px;margin-top:3px'>Space ^10, Supernova ^2, x50 Legacy Energy</div>" +
+      "<div style='font-size:12px;margin-top:5px'>Cost: " + fmt(CDUPG_COST) + " Cosmic Dust</div></button></div>";
   } else if (curTab === "space") {
     document.getElementById("cdusec").style.display = "none";
   }
