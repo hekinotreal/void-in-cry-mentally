@@ -946,6 +946,7 @@ function cosmicDustRate() {
   if (elemBought[51]) r = r.pow(2);
   if (snUpg[4]) r = r.pow(10);
   if (cdUpg) r = r.pow(10);
+  if (cometUpg[10]) r = r.pow(100);
   return r;
 }
 function buySpace(i) {
@@ -970,7 +971,8 @@ var COMET_UPGRADES = [
   { name: "we are getting closer and closerr", info: "x5 cosmic dust per bought space/comet upgrade, x2 comets, Autobuy first 5 cosmic dust upgrades", cost: new ExpantaNum(360) },
   { name: "we are really close to something cool", info: "Atoms ^(log100(Comets)^0.2), x2 comets, x100 cosmic dust", cost: new ExpantaNum(1750) },
   { name: "WHAT thats really good jump no way", info: "x1M cosmic dust, x50 comets", cost: new ExpantaNum(50000) },
-  { name: "WHATTTT already exponents and omg what is that? is that new reset layer??? omg buy me to see it btw loll", info: "Cosmic dust ^1.05, Comets ^1.05", cost: new ExpantaNum("4e11") }
+  { name: "WHATTTT already exponents and omg what is that? is that new reset layer??? omg buy me to see it btw loll", info: "Cosmic dust ^1.05, Comets ^1.05", cost: new ExpantaNum("4e11") },
+  { name: "Wow legacy is cool", info: "x100 Legacy Energy, Space ^100, Money ^2, Antimatter ^2, Matter ^2", cost: new ExpantaNum(10).pow(new ExpantaNum("2e6")) }
 ];
 function cometGainRaw() {
   if (!cosmicDust.gt(1)) return new ExpantaNum(0);
@@ -1006,6 +1008,7 @@ function cometGainRaw() {
   if (elemBought[51]) g = g.pow(2);
   if (snUpg[4]) g = g.pow(10);
   if (cdUpg) g = g.pow(10);
+  if (cometUpg[10]) g = g.pow(100);
   return g;
 }
 function cometGain() {
@@ -1023,6 +1026,7 @@ function doCometReset() {
 function buyCometUpg(i) {
   var u = COMET_UPGRADES[i - 1];
   if (!u || cometUpg[i - 1]) return;
+  if (i === 11 && !cdUpg) return;
   if (comets.lt(u.cost)) return;
   comets = comets.sub(u.cost);
   cometUpg[i - 1] = true;
@@ -1678,6 +1682,7 @@ function loop(now) {
     if (snUpg[3]) moneyRate = moneyRate.pow(2);
     if (elemBought[50]) moneyRate = moneyRate.pow(2);
     if (elemBought[51]) moneyRate = moneyRate.pow(2);
+    if (cometUpg[10]) moneyRate = moneyRate.pow(2);
     money = money.add(moneyRate.mul(dt));
   }
   if (elemBought[48]) {
@@ -1716,8 +1721,9 @@ function loop(now) {
     for (var ap = 0; ap < 7; ap++) antimatterDims[ap] = antimatterDims[ap].add(antimatterDims[ap + 1].mul(dt));
     matter = softcapGain(matter, matCap);
     antimatter = softcapGain(antimatter, matCap);
+    if (cometUpg[10]) { matter = matter.pow(2); antimatter = antimatter.pow(2); }
   }
-  if (matUpgs[2]) legacyEnergy = legacyEnergy.add(new ExpantaNum(1).mul(quarkUpg[23] ? 50 : 1).mul(legacyUpgs[1] ? 100 : 1).mul(elemBought[57] ? 100 : 1).mul(engineCount >= 4 ? 100 : 1).mul(cdUpg ? 50 : 1).mul(dt));
+  if (matUpgs[2]) legacyEnergy = legacyEnergy.add(new ExpantaNum(1).mul(quarkUpg[23] ? 50 : 1).mul(legacyUpgs[1] ? 100 : 1).mul(elemBought[57] ? 100 : 1).mul(engineCount >= 4 ? 100 : 1).mul(cdUpg ? 50 : 1).mul(cometUpg[10] ? 100 : 1).mul(dt));
   if (elemBought[24]) buyInfMax();
   if (elemBought[26]) {
     red = red.mul(new ExpantaNum(10).pow(dt)).min(rgbCap());
@@ -2032,7 +2038,7 @@ if (curTab === "space" && legacyUpgs[3]) {
     if (cosmicDust.gte(new ExpantaNum(1e12))) { cr.disabled = false; cr.style.background = "#8b8b00"; }
     else { cr.disabled = true; cr.style.background = "#b03030"; }
     var cuplist = document.getElementById("cuplist");
-    var btnSig = (cometUpg[2] ? "1" : "0") + (cometUpg[3] ? "1" : "0") + (cometUpg[4] ? "1" : "0") + (cometUpg[5] ? "1" : "0") + (cometUpg[6] ? "1" : "0") + (cometUpg[7] ? "1" : "0") + (cometUpg[8] ? "1" : "0") + "|" + COMET_UPGRADES.length;
+    var btnSig = (cometUpg[2] ? "1" : "0") + (cometUpg[3] ? "1" : "0") + (cometUpg[4] ? "1" : "0") + (cometUpg[5] ? "1" : "0") + (cometUpg[6] ? "1" : "0") + (cometUpg[7] ? "1" : "0") + (cometUpg[8] ? "1" : "0") + (cometUpg[10] ? "1" : "0") + (cdUpg ? "1" : "0") + "|" + COMET_UPGRADES.length;
     if (cuplist.dataset.sig !== btnSig) {
       cuplist.dataset.sig = btnSig;
       var uch = "";
@@ -2044,6 +2050,7 @@ if (curTab === "space" && legacyUpgs[3]) {
         if (cui2 === 7 && !cometUpg[6]) continue;
         if (cui2 === 8 && !cometUpg[7]) continue;
         if (cui2 === 9 && !cometUpg[8]) continue;
+        if (cui2 === 10 && !cdUpg) continue;
         var cu2 = COMET_UPGRADES[cui2];
         uch += "<div style='display:flex;justify-content:center'><button id='cub" + (cui2 + 1) + "' style='width:240px;height:88px;border:2px solid #fff;color:#fff;cursor:pointer;font-family:inherit;padding:6px'>" +
           "<div style='font-size:15px;font-weight:bold'>" + cu2.name + "</div>" +
@@ -2060,6 +2067,7 @@ if (curTab === "space" && legacyUpgs[3]) {
       if (cui3 === 7 && !cometUpg[6]) continue;
       if (cui3 === 8 && !cometUpg[7]) continue;
       if (cui3 === 9 && !cometUpg[8]) continue;
+      if (cui3 === 10 && !cdUpg) continue;
       var cb = document.getElementById("cub" + (cui3 + 1));
       if (cometUpg[cui3]) cb.style.background = "#006400";
       else cb.style.background = comets.gte(COMET_UPGRADES[cui3].cost) ? "#8b8b00" : "#b03030";
@@ -2240,7 +2248,7 @@ if (curTab === "space" && legacyUpgs[3]) {
   }
 
   if (curTab === "legacy" && matUpgs[2]) {
-    var levrate = new ExpantaNum(1).mul(quarkUpg[23] ? 50 : 1).mul(legacyUpgs[1] ? 100 : 1).mul(elemBought[57] ? 100 : 1).mul(engineCount >= 4 ? 100 : 1).mul(cdUpg ? 50 : 1);
+    var levrate = new ExpantaNum(1).mul(quarkUpg[23] ? 50 : 1).mul(legacyUpgs[1] ? 100 : 1).mul(elemBought[57] ? 100 : 1).mul(engineCount >= 4 ? 100 : 1).mul(cdUpg ? 50 : 1).mul(cometUpg[10] ? 100 : 1);
     document.getElementById("levamt").textContent = "Legacy Energy: " + fmt(legacyEnergy) + " (+" + fmt(levrate) + "/s)";
     var lb1 = document.getElementById("levu1");
     lb1.textContent = "We are so tutol" + (legacyUpgs[0] ? " (BOUGHT)" : "") + ": Unlocks a new Void upgrade\nCost: 10 LE";
