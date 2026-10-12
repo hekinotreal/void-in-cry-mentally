@@ -283,7 +283,7 @@ function doSupernovaReset() {
 function buySupernovaUpg(i) {
   var u = SN_UPGRADES[i - 1];
   if (!u || snUpg[i - 1]) return;
-  if (i === 6 && !legacyUpgs[4]) return;
+  if (i === 5 && !legacyUpgs[4]) return;
   if (i === 7 && !legacyUpgs[6]) return;
   if (supernova.lt(u.cost)) return;
   supernova = supernova.sub(u.cost);
